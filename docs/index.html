@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="de">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="Minecraft Java auf deinem Android-Handy hosten und im Browser verwalten.">
+<title>MineHost – Minecraft-Server auf Android</title>
+<style>
+:root { color-scheme:dark; font: 17px/1.6 system-ui,sans-serif; background:#101713; color:#edf5ef }
+body { max-width:64rem; margin:auto; padding:1.25rem }
+nav, footer { display:flex; flex-wrap:wrap; gap:1rem; align-items:center }
+nav strong { margin-right:auto }
+a { color:#a4e5b7 }
+header { padding:clamp(3rem,10vw,7rem) 0 3rem }
+h1 { font-size:clamp(2.5rem,7vw,4.5rem); line-height:1.05; letter-spacing:-.04em; margin:0 }
+header p { max-width:38rem; color:#b8c9be }
+.button { display:inline-block; background:#a4e5b7; color:#102419; font-weight:700; padding:.65rem 1rem; border-radius:.6rem; text-decoration:none }
+section { background:#19251e; border:1px solid #314539; border-radius:1rem; padding:clamp(1rem,3vw,2rem); margin:1rem 0 }
+h2 { margin-top:0 }
+li + li { margin-top:.5rem }
+footer { padding:1rem 0 }
+</style>
+<nav><strong>MineHost</strong><a href="#start">Einrichtung</a><a href="#hilfe">Hilfe</a><a href="https://github.com/adrighg-scripts/MineHost/releases">Versionen</a></nav>
+<header>
+<h1>Dein Minecraft-Server<br>auf deinem Handy</h1>
+<p>Hoste Minecraft Java auf Android. Starte und stoppe den Server in der App. Verwalte Welten, Erweiterungen und Backups im Browser.</p>
+<a class="button" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">Neueste APK herunterladen</a>
+</header>
+<main>
+<section id="start">
+<h2>So richtest du deinen Server ein</h2>
+<ol>
+<li>Installiere die APK auf einem ARM64-Android-Handy und öffne MineHost.</li>
+<li>Tippe auf <strong>Einrichtung starten</strong>. Erstelle ein Konto und verknüpfe das Handy im Browser.</li>
+<li>Wähle Minecraft-Version und Serversoftware. Lies die EULA und bestätige sie, wenn du zustimmst.</li>
+<li>Starte den Server. Teste den Beitritt in Minecraft Java über die im Dashboard angezeigte WLAN-Adresse.</li>
+<li>Für Freunde außerhalb des WLANs öffne <strong>Hilfe</strong> im Dashboard und folge dem Router-Tutorial. Teile die öffentliche Adresse mit dem externen Port.</li>
+</ol>
+</section>
+<section>
+<h2>Serversoftware und Erweiterungen</h2>
+<p><strong>Paper</strong> unterstützt kompatible Plugins. <strong>Fabric</strong> unterstützt passende Mods und installiert die Fabric API automatisch. Du kannst auch <strong>Vanilla</strong> oder <strong>Pumpkin</strong> wählen. PatchBukkit ist noch nicht enthalten.</p>
+<p>Profile speichern Welten und Einstellungen getrennt. Auf dem Handy läuft jeweils ein Server.</p>
+</section>
+<section id="hilfe">
+<h2>Hilfe und Updates</h2>
+<p><strong>Handy offline?</strong> Prüfe Internet und öffne MineHost. Tippe auf <strong>Website öffnen</strong> und melde dich mit dem verknüpften Konto an.</p>
+<p><strong>Freunde können nicht beitreten?</strong> Prüfe die Minecraft-Version, die Whitelist und die TCP-Portfreigabe zum Handy. Teste die öffentliche Adresse aus einem zweiten Netzwerk.</p>
+<p><strong>Update installieren?</strong> Stoppe den Server, lade die neueste APK und installiere sie über die vorhandene App.</p>
+</section>
+</main>
+<footer><a href="https://minehost-control-20261102.iqiyicude1711.chatgpt.site/">Dashboard</a><a href="https://github.com/adrighg-scripts/MineHost">GitHub</a><a href="https://github.com/adrighg-scripts/MineHost/releases/latest">Downloads und Quellcode</a></footer>
+</html>

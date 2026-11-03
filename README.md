@@ -15,3 +15,13 @@ Host a Minecraft Java server on an ARM64 Android phone. MineHost includes its ow
 Each profile has separate worlds, settings, and backups. One profile can run at a time. File uploads and deletions queued during play are applied when the server stops.
 
 To update, stop the server so it saves the world, then install the latest APK over your existing MineHost app. The release also includes the Android project and the bundled runtimes' source archives.
+
+## Publishing a release
+
+On the MineHost development workstation, increment the Android version name and code, then run:
+
+```powershell
+./Publish-Release.ps1 -Notes 'Describe the changes in English.'
+```
+
+The script builds and checks the APK, pushes the committed documentation, uploads the APK and source archives, and publishes the release. It uses the existing local signing certificate so installed copies can update in place. GitHub Pages deploys documentation changes pushed to main.

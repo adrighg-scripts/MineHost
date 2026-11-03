@@ -10,7 +10,7 @@ Host a Minecraft Java server on an ARM64 Android phone. MineHost includes its ow
 4. Start the server and join from Minecraft Java using the local address shown in the dashboard.
 5. For players outside your Wi-Fi network, follow the router guide under **Help** and share the public address and external port.
 
-**Paper** supports compatible plugins. **Fabric** supports mods and automatically installs Fabric API. You can also run **Vanilla** or **Pumpkin**. Pumpkin support in the current release does not include PatchBukkit.
+**Paper** supports compatible plugins. **Fabric** supports mods and automatically installs Fabric API. You can also run **Vanilla** or **Pumpkin**. Pumpkin supports compatible Bukkit plugins through PatchBukkit.
 
 Each profile has separate worlds, settings, and backups. One profile can run at a time. File uploads and deletions queued during play are applied when the server stops.
 

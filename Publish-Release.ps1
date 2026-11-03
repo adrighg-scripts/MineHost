@@ -31,7 +31,11 @@ if (!$release) {
     $release = Invoke-RestMethod "$api/releases" -Method Post -Headers $headers -ContentType application/json -Body $body
 }
 $upload = ($release.upload_url -split '\{')[0]
-foreach ($name in 'MineHost.apk','MineHost_Android.zip','MineHost_OpenJDK_Sources.zip','MineHost_Pumpkin_Sources.zip') {
+$assetNames = @('MineHost.apk','MineHost_Android.zip','MineHost_OpenJDK_Sources.zip','MineHost_Pumpkin_Sources.zip')
+if (Test-Path "$android/app/src/main/jniLibs/arm64-v8a/libpatchbukkit.so") {
+    $assetNames += 'MineHost_PatchBukkit_Sources.zip'
+}
+foreach ($name in $assetNames) {
     $file = Get-Item "$output/$name"
     $existing = $release.assets | Where-Object name -eq $name | Select-Object -First 1
     if ($existing) {

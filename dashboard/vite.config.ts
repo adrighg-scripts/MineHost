@@ -8,8 +8,8 @@ const databaseName = process.env.MINEHOST_D1_NAME;
 const bucketName = process.env.MINEHOST_R2_BUCKET;
 
 if (deployment && (!databaseId || !/^[\da-f]{8}(?:-[\da-f]{4}){3}-[\da-f]{12}$/i.test(databaseId)
-  || !databaseName || !bucketName)) {
-  throw new Error("Set MINEHOST_D1_ID, MINEHOST_D1_NAME and MINEHOST_R2_BUCKET for deployment.");
+  || !databaseName)) {
+  throw new Error("Set MINEHOST_D1_ID and MINEHOST_D1_NAME for deployment.");
 }
 
 export default defineConfig({
@@ -27,9 +27,11 @@ export default defineConfig({
           binding: "DB",
           database_id: deployment ? databaseId! : "00000000-0000-4000-8000-000000000000",
           database_name: deployment ? databaseName! : "minehost-local",
-          migrations_dir: "drizzle",
+          migrations_dir: "../../drizzle",
         }],
-        r2_buckets: [{ binding: "BUCKET", bucket_name: deployment ? bucketName! : "minehost-local" }],
+        ...(deployment && !bucketName ? {} : {
+          r2_buckets: [{ binding: "BUCKET", bucket_name: deployment ? bucketName! : "minehost-local" }],
+        }),
       },
     }),
   ],

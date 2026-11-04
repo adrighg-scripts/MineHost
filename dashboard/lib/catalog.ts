@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-const UA="MineHost/0.7 (https://minehost-control-20261102.waxengleam1.chatgpt.site)";
+const UA="MineHost/0.10 (https://minehost-dashboard.nadineadrian2012-nb.workers.dev)";
 export async function api(source:string,path:string){const headers:Record<string,string>={"User-Agent":UA};let root="https://api.modrinth.com/v2";if(source==="curseforge"){const key=(env as any).CURSEFORGE_API_KEY;if(!key)throw new Error("CurseForge braucht noch einen API-Zugang. Modrinth kannst du sofort nutzen.");headers['x-api-key']=key;root="https://api.curseforge.com/v1";}const response=await fetch(root+path,{headers,signal:AbortSignal.timeout(15000)});if(!response.ok)throw new Error("Der Katalog ist gerade nicht erreichbar oder bietet diese Datei nicht an.");return response.json() as Promise<any>;}
 const loaders=(mods:boolean)=>mods?["fabric"]:["paper","spigot","bukkit"];
 export async function search(source:string,query:string,version:string,mods:boolean){

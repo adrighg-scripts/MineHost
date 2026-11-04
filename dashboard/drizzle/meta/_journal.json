@@ -1,0 +1,62 @@
+{
+  "version": "7",
+  "dialect": "sqlite",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "6",
+      "when": 1793574964939,
+      "tag": "0000_nostalgic_microchip",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "6",
+      "when": 1793577096106,
+      "tag": "0001_busy_rumiko_fujikawa",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1793619507107,
+      "tag": "0002_premium_famine",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1793623705579,
+      "tag": "0003_right_blizzard",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1793625227412,
+      "tag": "0004_thankful_sentry",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1793627407295,
+      "tag": "0005_silky_wolfsbane",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "6",
+      "when": 1793628717725,
+      "tag": "0006_sweet_shinko_yamashiro",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "6",
+      "when": 1793650577134,
+      "tag": "0007_typical_falcon",
+      "breakpoints": true
+    }
+  ]
+}

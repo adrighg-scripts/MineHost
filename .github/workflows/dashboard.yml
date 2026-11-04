@@ -1,0 +1,86 @@
+name: Dashboard
+
+on:
+  pull_request:
+    paths:
+      - 'dashboard/**'
+      - '.github/workflows/dashboard.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'dashboard/**'
+      - '.github/workflows/dashboard.yml'
+  workflow_dispatch:
+    inputs:
+      deploy:
+        description: Publish to the configured Cloudflare production environment
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    working-directory: dashboard
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  publish:
+    if: github.event_name == 'workflow_dispatch' && inputs.deploy && github.ref == 'refs/heads/main'
+    needs: verify
+    environment: dashboard-production
+    concurrency:
+      group: minehost-dashboard-production
+      cancel-in-progress: false
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: dashboard/package-lock.json
+      - run: npm ci
+      - name: Build for production bindings
+        run: npm run build
+        env:
+          MINEHOST_DEPLOY: '1'
+          MINEHOST_D1_ID: ${{ vars.MINEHOST_D1_ID }}
+          MINEHOST_D1_NAME: ${{ vars.MINEHOST_D1_NAME }}
+          MINEHOST_R2_BUCKET: ${{ vars.MINEHOST_R2_BUCKET }}
+      - name: Apply migrations and deploy
+        env:
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          AUTH_PEPPER: ${{ secrets.AUTH_PEPPER }}
+          DEVICE_TOKEN_SHA256: ${{ secrets.DEVICE_TOKEN_SHA256 }}
+          CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+        run: |
+          set -euo pipefail
+          : "${CLOUDFLARE_ACCOUNT_ID:?Set CLOUDFLARE_ACCOUNT_ID in dashboard-production}"
+          : "${CLOUDFLARE_API_TOKEN:?Set CLOUDFLARE_API_TOKEN in dashboard-production}"
+          : "${AUTH_PEPPER:?Set AUTH_PEPPER in dashboard-production}"
+          umask 077
+          secrets_file="$(mktemp)"
+          trap 'rm -f "$secrets_file"' EXIT
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            const names = ["AUTH_PEPPER", "DEVICE_TOKEN_SHA256", "CURSEFORGE_API_KEY"];
+            const entries = names.filter(name => process.env[name]).map(name => [name, process.env[name]]);
+            writeFileSync(process.argv[1], JSON.stringify(Object.fromEntries(entries)));
+          ' "$secrets_file"
+          npx --no-install wrangler d1 migrations apply DB --remote --config dist/server/wrangler.json
+          npx --no-install wrangler deploy --config dist/server/wrangler.json --secrets-file "$secrets_file"

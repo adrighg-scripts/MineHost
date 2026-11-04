@@ -1,0 +1,1 @@
+ALTER TABLE `devices` ADD `active_until` integer DEFAULT 0 NOT NULL;

@@ -1,0 +1,7 @@
+.account-menu { position: relative; }
+.account-menu summary { display: grid; place-items: center; list-style: none; cursor: pointer; }
+.account-menu summary::-webkit-details-marker { display: none; }
+.account-options { position: absolute; z-index: 20; top: calc(100% + 8px); right: 0; background: var(--panel, #18191c); }
+.account-dialog { max-width: 420px; }
+.account-password { display: grid; gap: 12px; margin-bottom: 16px; }
+.account-password label { display: grid; gap: 5px; }

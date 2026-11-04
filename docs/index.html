@@ -1,53 +1,146 @@
 <!doctype html>
 <html lang="en">
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="description" content="Host Minecraft Java on Android and manage it in your browser.">
-<title>MineHost – Minecraft servers on Android</title>
-<style>
-:root { color-scheme:dark; font: 17px/1.6 system-ui,sans-serif; background:#101713; color:#edf5ef }
-body { max-width:64rem; margin:auto; padding:1.25rem }
-nav, footer { display:flex; flex-wrap:wrap; gap:1rem; align-items:center }
-nav strong { margin-right:auto }
-a { color:#a4e5b7 }
-header { padding:clamp(3rem,10vw,7rem) 0 3rem }
-h1 { font-size:clamp(2.5rem,7vw,4.5rem); line-height:1.05; letter-spacing:-.04em; margin:0 }
-header p { max-width:38rem; color:#b8c9be }
-.button { display:inline-block; background:#a4e5b7; color:#102419; font-weight:700; padding:.65rem 1rem; border-radius:.6rem; text-decoration:none }
-section { background:#19251e; border:1px solid #314539; border-radius:1rem; padding:clamp(1rem,3vw,2rem); margin:1rem 0 }
-h2 { margin-top:0 }
-li + li { margin-top:.5rem }
-footer { padding:1rem 0 }
-</style>
-<nav><strong>MineHost</strong><a href="#setup">Setup</a><a href="#help">Help</a><a href="https://github.com/adrighg-scripts/MineHost/releases">Releases</a></nav>
-<header>
-<h1>Your Minecraft server<br>on your phone</h1>
-<p>Host Minecraft Java on Android. Control the server from the app, and manage worlds, add-ons, and backups from your browser.</p>
-<a class="button" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">Download the latest APK</a>
-</header>
-<main>
-<section id="setup">
-<h2>Set up your server</h2>
-<ol>
-<li>Install the APK on an ARM64 phone running Android 8 or later.</li>
-<li>Open MineHost and tap <strong>Start setup</strong>. Create a MineHost account and link the phone.</li>
-<li>Choose a Minecraft version and server engine. Read and accept the Minecraft EULA to install it.</li>
-<li>Start the server and join from Minecraft Java using the local address shown in the dashboard.</li>
-<li>For friends outside your Wi-Fi network, follow the router guide under <strong>Help</strong> and share the public address and external port.</li>
-</ol>
-</section>
-<section>
-<h2>Server engines and add-ons</h2>
-<p>Use <strong>Paper</strong> for compatible plugins or <strong>Fabric</strong> for mods. MineHost installs Fabric API automatically. <strong>Vanilla</strong> and <strong>Pumpkin</strong> are also available. Pumpkin supports compatible Bukkit plugins through PatchBukkit.</p>
-<p><strong>Bedrock crossplay:</strong> In MineHost 0.10.14 or later, choose Pumpkin and enable <strong>Allow Bedrock players</strong> during setup or in Settings. Restart to apply it. This experimental mode supports Bedrock 26.60 and Java 26.3 without plugins. Forward the Bedrock port over TCP and UDP for players outside your Wi-Fi. Paper crossplay is unavailable in the Android app.</p>
-<p>Profiles keep worlds and settings separate. One server runs at a time.</p>
-</section>
-<section id="help">
-<h2>Help and updates</h2>
-<p><strong>Phone offline?</strong> Check its internet connection, open MineHost, and tap <strong>Open website</strong>. Sign in with the linked account.</p>
-<p><strong>Friends cannot join?</strong> Check their Minecraft version, the allowlist, and the TCP port forwarding rule. Test the public address from a second network.</p>
-<p><strong>Updating?</strong> Stop the server so it saves your world, then install the latest APK over the existing app.</p>
-</section>
-</main>
-<footer><a href="https://minehost-control-20261102.iqiyicude1711.chatgpt.site/">Dashboard</a><a href="https://github.com/adrighg-scripts/MineHost">GitHub</a><a href="https://github.com/adrighg-scripts/MineHost/releases/latest">Downloads and source</a></footer>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Turn an Android phone into a Minecraft server. Get MineHost, pick your server engine and manage the world from your browser.">
+  <meta name="theme-color" content="#111710">
+  <link rel="icon" href="./minehost.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="./site.css">
+  <script src="./site.js" defer></script>
+  <title>MineHost — Your Minecraft server on Android</title>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="MineHost home"><img src="./minehost.svg" width="35" height="35" alt=""><span>MineHost</span></a>
+      <nav aria-label="Main navigation">
+        <a href="#setup">Setup</a>
+        <a href="#engines">Engines</a>
+        <a href="#help">Help</a>
+      </nav>
+      <a class="header-dashboard" href="https://minehost-control-20261102.iqiyicude1711.chatgpt.site/">Open dashboard <span aria-hidden="true">↗</span></a>
+    </div>
+  </header>
+  <main id="main">
+    <section class="hero shell" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="pixel"></span> Minecraft server hosting for Android</p>
+        <h1 id="hero-title">Your Minecraft server.<br><em>On your phone.</em></h1>
+        <p class="hero-description">Give a spare Android phone a world to run. Start the server in MineHost and manage settings, files, plugins and backups from your browser.</p>
+        <div class="actions">
+          <a class="button primary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></svg>
+            Download APK
+          </a>
+          <a class="button secondary" href="#setup">Setup guide <span aria-hidden="true">↓</span></a>
+        </div>
+        <p class="hero-meta"><span>Android 8+</span><span>ARM64</span><a href="https://github.com/adrighg-scripts/MineHost/releases/latest">Latest release ↗</a></p>
+      </div>
+      <figure class="hero-figure">
+        <div class="hero-art" aria-hidden="true">
+          <div class="art-label"><span class="pixel"></span> THE MINEHOST STACK</div>
+          <svg class="machine" viewBox="0 0 520 400" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="ground" x2="0" y2="1" gradientUnits="objectBoundingBox"><stop stop-color="#33432a"/><stop offset="1" stop-color="#192719"/></linearGradient>
+              <linearGradient id="screen" x2="1" y2="1"><stop stop-color="#1d3322"/><stop offset="1" stop-color="#101a15"/></linearGradient>
+              <radialGradient id="shine"><stop stop-color="#8ff192" stop-opacity=".38"/><stop offset="1" stop-color="#8ff192" stop-opacity="0"/></radialGradient>
+            </defs>
+            <ellipse cx="269" cy="312" rx="226" ry="85" fill="url(#shine)"/>
+            <path d="M78 284l181-77 187 77v24l-187 80-181-80z" fill="#152019" stroke="#3e573b"/>
+            <path d="M78 284l181 79 187-79-187-77z" fill="url(#ground)" stroke="#5c7952"/>
+            <path d="M259 363v25m-144-120 181 79m-145-95 182 80m-146-95 184 79m-146-94 183 79m-150-89 183 79m-333 5 182-77m-147 92 185-77m-149 93 184-78m-148 94 184-79" fill="none" stroke="#88ad7c" stroke-opacity=".25"/>
+            <path d="M81 304l178 77 185-77" fill="none" stroke="#91c082" stroke-opacity=".25"/>
+            <g class="machine-float">
+              <path d="M143 245l73-29 77 31-76 32z" fill="#09120d" opacity=".58"/>
+              <path d="M136 143l78-32 83 35v91l-80 34-81-34z" fill="#253624" stroke="#9ac48b" stroke-width="1.4"/>
+              <path d="M136 143l81 36 80-33-83-35z" fill="#729563" stroke="#a5c797" stroke-width="1.4"/>
+              <path d="M217 179v92l80-34v-91z" fill="#384f34" stroke="#72956d"/>
+              <path d="M146 161l61 27v26l-61-26zm0 35 61 27v26l-61-26z" fill="#101a14" stroke="#547550"/>
+              <path d="M155 176l7 3v7l-7-3zm0 35 7 3v7l-7-3z" fill="#a9f298" class="machine-light"/>
+              <path d="M173 186l25 11m-25 24 25 11m31-46 53-22m-53 34 53-22m-53 48 53-22m-53 34 53-22" stroke="#83a37a" stroke-width="2"/>
+              <path d="M158 143l56-23 62 26-57 23z" fill="none" stroke="#adc99b" stroke-opacity=".72"/>
+            </g>
+            <path d="M308 288l23-10 38 16-24 11zm-183 10 21-9 23 10-21 9z" fill="#739f69" opacity=".46"/>
+            <g class="device-float">
+              <path d="M331 106l69-18q13-3 13 12v136q0 12-11 16l-67 20q-14 3-14-10V122q0-12 10-16z" fill="#273629" stroke="#a2c298" stroke-width="1.8"/>
+              <path d="M332 117l69-18v141l-69 21z" fill="url(#screen)" stroke="#516d4d"/>
+              <path d="M347 125l36-10" stroke="#769476" stroke-width="2"/>
+              <path d="M347 157l39-10v30l-39 11z" fill="#446343" stroke="#86b980"/>
+              <path d="M354 161l24-6v6l-24 6zm0 10 24-6v6l-24 6z" fill="#aff5a2"/>
+              <path d="M346 209l40-11m-40 20 31-9m-31 19 36-11m-25 27 19-6" fill="none" stroke="#6f9470" stroke-width="2"/>
+              <path d="M413 106l6-1v129q0 11-12 17l-8 3" fill="none" stroke="#5d7855" stroke-width="3"/>
+            </g>
+            <path d="M256 292l59-25v-13" fill="none" stroke="#a8ef93" stroke-opacity=".55" stroke-width="2" stroke-dasharray="4 6" class="signal-path"/>
+            <g fill="#a8ef93" class="machine-light"><path d="M104 191h5v5h-5zm327-48h4v4h-4zm-172-51h5v5h-5zm-142 41h3v3h-3zm310 126h5v5h-5z"/></g>
+          </svg>
+          <div class="art-caption"><span><b>01</b> Host on Android</span><span><b>02</b> Control in the browser</span></div>
+        </div>
+        <figcaption>A Minecraft server on your own hardware.</figcaption>
+      </figure>
+    </section>
+    <section class="overview" aria-label="What MineHost can do">
+      <div class="shell overview-grid">
+        <article><span aria-hidden="true">▣</span><div><h2>Your worlds</h2><p>Keep separate servers, files and backups on your phone.</p></div></article>
+        <article><span aria-hidden="true">⌘</span><div><h2>Your server controls</h2><p>Open the console and manage settings from a computer or phone.</p></div></article>
+        <article><span aria-hidden="true">◇</span><div><h2>Your friends</h2><p>Play over Wi-Fi or set up your router for players outside your home.</p></div></article>
+      </div>
+    </section>
+    <section class="shell content-section" id="setup">
+      <div class="section-intro" data-reveal>
+        <p class="eyebrow"><span class="pixel"></span> First launch</p>
+        <h2>From APK to first join.</h2>
+        <p>Keep the host phone connected to Wi-Fi and power while the server runs. The dashboard setup guide walks you through the rest.</p>
+      </div>
+      <ol class="steps">
+        <li data-reveal><span class="step-number">01</span><h3>Install MineHost</h3><p>Download the APK on an ARM64 Android 8+ phone. Open it and tap <strong>Start setup</strong>.</p></li>
+        <li data-reveal><span class="step-number">02</span><h3>Link your phone</h3><p>Create a MineHost account or sign in with an existing one. Confirm the device and return to the app.</p></li>
+        <li data-reveal><span class="step-number">03</span><h3>Choose your server</h3><p>Pick the Minecraft version and engine. Read and accept the Minecraft EULA before installing. Set the game mode, player limit and allowlist.</p></li>
+        <li data-reveal><span class="step-number">04</span><h3>Start and join</h3><p>Start the server, wait for the dashboard to show it is running and join with the local address. Follow <strong>Network</strong> to invite friends from outside your Wi-Fi.</p></li>
+      </ol>
+    </section>
+    <section class="engine-section" id="engines">
+      <div class="shell content-section">
+        <div class="section-intro" data-reveal>
+          <p class="eyebrow"><span class="pixel"></span> Server engines</p>
+          <h2>Pick how you play.</h2>
+          <p>Choose an engine when you set up a server. Each server has its own world and settings. One server can run at a time on each phone.</p>
+        </div>
+        <div class="engines">
+          <article data-reveal><div class="engine-mark paper" aria-hidden="true">P</div><h3>Paper</h3><p>Run compatible Bukkit and Paper plugins. Good for commands, permissions and server-side tools.</p><span class="tag">Java · plugins</span></article>
+          <article data-reveal><div class="engine-mark fabric" aria-hidden="true">F</div><h3>Fabric</h3><p>Use compatible mods. MineHost installs Fabric API automatically. Some mods also need to be installed by each player.</p><span class="tag">Java · mods</span></article>
+          <article data-reveal><div class="engine-mark vanilla" aria-hidden="true">V</div><h3>Vanilla</h3><p>Run the official Minecraft server for a familiar survival or creative world.</p><span class="tag">Java · classic</span></article>
+          <article data-reveal><div class="engine-mark pumpkin" aria-hidden="true">P</div><h3>Pumpkin</h3><p>Try native Pumpkin plugins or compatible Bukkit plugins through PatchBukkit. Experimental Bedrock crossplay uses Pumpkin without plugins.</p><span class="tag">Java · experimental crossplay</span></article>
+        </div>
+      </div>
+    </section>
+    <section class="shell content-section help" id="help">
+      <div class="section-intro" data-reveal>
+        <p class="eyebrow"><span class="pixel"></span> Help &amp; updates</p>
+        <h2>Good to know.</h2>
+        <p>The Help tab in your dashboard can reopen the complete setup guide at any time.</p>
+      </div>
+      <div class="faq" data-reveal>
+        <details><summary>How do friends connect from another network?</summary><p>First test the local address on the same Wi-Fi. Under <strong>Network</strong> in the dashboard, follow your router's port forwarding steps. Give friends the public address and port, then test from a different network.</p></details>
+        <details><summary>Can Java and Bedrock players share a world?</summary><p>MineHost 0.10.14 offers experimental crossplay on Pumpkin for Java 26.3 and Bedrock 26.60. Enable <strong>Allow Bedrock players</strong> and restart. The dashboard shows the separate Bedrock port for TCP and UDP. This mode runs without plugins or PatchBukkit. Paper crossplay is currently unavailable on Android.</p></details>
+        <details><summary>Why does my phone appear offline?</summary><p>Check the phone's internet connection, open MineHost and use <strong>Open website</strong>. Sign in with the account linked to the phone. If Android stops the app in the background, check MineHost's battery settings.</p></details>
+        <details><summary>How do I update MineHost?</summary><p>Stop your server so it saves the world. Install the latest APK over the existing MineHost app. Previous versions, release notes and source downloads are available on GitHub.</p></details>
+        <details><summary>Where are my world files?</summary><p>Worlds and backups are stored on the host phone. Use the dashboard to browse the files and export backups to another device.</p></details>
+      </div>
+    </section>
+    <section class="shell download-section" aria-label="Get MineHost">
+      <div class="download-card" data-reveal>
+        <div><img src="./minehost.svg" alt="" width="42" height="42"><h2>Get MineHost.</h2><p>The latest APK and release notes are on GitHub.</p></div>
+        <div class="actions"><a class="button primary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">Download APK <span aria-hidden="true">↓</span></a><a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases">Browse releases <span aria-hidden="true">↗</span></a></div>
+      </div>
+    </section>
+  </main>
+  <footer class="shell site-footer">
+    <a class="brand" href="./"><img src="./minehost.svg" width="28" height="28" alt="">MineHost</a>
+    <p>An independent project for Minecraft players.</p>
+    <a href="https://github.com/adrighg-scripts/MineHost">GitHub ↗</a>
+    <a href="https://minehost-control-20261102.iqiyicude1711.chatgpt.site/">Dashboard ↗</a>
+  </footer>
+</body>
 </html>

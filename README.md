@@ -18,6 +18,8 @@ Each profile has separate worlds, settings, and backups. One profile can run at 
 
 To update, stop the server so it saves the world, then install the latest APK over your existing MineHost app. The release also includes the Android project and the bundled runtimes' source archives.
 
+The GitHub Pages website lives in `docs/`. The browser dashboard and its API live in [dashboard/](dashboard/), with validation and a Cloudflare deployment workflow under GitHub Actions. See the [dashboard deployment guide](dashboard/README.md).
+
 ## Publishing a release
 
 On the MineHost development workstation, increment the Android version name and code, then run:

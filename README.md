@@ -12,6 +12,8 @@ Host a Minecraft Java server on an ARM64 Android phone. MineHost includes its ow
 
 **Paper** supports compatible plugins. **Fabric** supports mods and automatically installs Fabric API. You can also run **Vanilla** or **Pumpkin**. Pumpkin supports compatible Bukkit plugins through PatchBukkit.
 
+**Bedrock crossplay:** On MineHost 0.10.14 or later, enable **Allow Bedrock players** in the setup guide or in **Settings**, then restart the server. The experimental Pumpkin mode accepts Java 26.3 and Bedrock 26.60 and currently runs without plugins. Paper crossplay requires Geyser, whose networking library is not currently supported by the Android app. For Bedrock players outside your Wi-Fi, forward the configured Bedrock port over both TCP and UDP, using the same port number inside and outside.
+
 Each profile has separate worlds, settings, and backups. One profile can run at a time. File uploads and deletions queued during play are applied when the server stops.
 
 To update, stop the server so it saves the world, then install the latest APK over your existing MineHost app. The release also includes the Android project and the bundled runtimes' source archives.

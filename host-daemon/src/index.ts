@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import { existsSync } from "node:fs";
-import { mkdir, readFile, writeFile, readdir } from "node:fs/promises";
+import { mkdir, readFile, writeFile, readdir, unlink } from "node:fs/promises";
 import { hostname, platform, arch, freemem, totalmem, cpus } from "node:os";
 import { join, resolve } from "node:path";
 import { execFile } from "node:child_process";
@@ -101,7 +101,14 @@ function openBrowser(url: string) {
 
 async function ensureLinked(): Promise<{ siteUrl: string; serverId: string; deviceToken: string }> {
   if (existsSync(REMOTE_FILE)) {
-    return JSON.parse(await readFile(REMOTE_FILE, "utf8"));
+    try {
+      const existing = JSON.parse(await readFile(REMOTE_FILE, "utf8"));
+      if (existing?.siteUrl && existing?.serverId && existing?.deviceToken) {
+        console.log(`\n[MineHost] Bereits gekoppelt! Server-ID: ${existing.serverId}`);
+        console.log(`[MineHost] Öffne Dashboard: ${existing.siteUrl}/?server=${existing.serverId}\n`);
+        return existing;
+      }
+    } catch {}
   }
   console.log(`\n[MineHost] Starte Gerätekopplung mit ${DASHBOARD_SITE} …`);
   const startRes = await fetch(`${DASHBOARD_SITE}/api/link/start`, {
@@ -118,7 +125,7 @@ async function ensureLinked(): Promise<{ siteUrl: string; serverId: string; devi
   openBrowser(linkData.website);
 
   while (Date.now() < linkData.expires) {
-    await new Promise(r => setTimeout(r, 2000));
+    await new Promise(r => setTimeout(r, 1500));
     const pollRes = await fetch(`${DASHBOARD_SITE}/api/link/status`, {
       method: "POST",
       headers: { Origin: DASHBOARD_SITE, "Content-Type": "application/json" },
@@ -164,17 +171,20 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
     }
     case "software_install": {
       if (mc.phase !== "stopped") await mc.stop();
-      const sw = (payload.software || "paper") as ServerSoftwareType;
+      const sw = (payload.requestedSoftware || payload.software || "paper") as ServerSoftwareType;
       const ver = String(payload.version || "1.21.4");
+      console.log(`[MineHost] Installiere ${sw.toUpperCase()} ${ver} …`);
       const res = await downloadServerJar(SERVER_DIR, sw, ver);
-      state.software = sw;
+      state.software = (payload.software || "paper") as ServerSoftwareType;
       state.version = ver;
       state.build = res.build;
       state.configured = true;
       await saveState(state);
+      console.log(`[MineHost] ${sw.toUpperCase()} ${ver} installiert!`);
       return { message: `${sw.toUpperCase()} ${ver} erfolgreich installiert.` };
     }
     case "start": {
+      console.log(`[MineHost] Starte Minecraft-Server (${state.software} ${state.version}) …`);
       await mc.start({
         serverDir: SERVER_DIR,
         dataDir: DATA_DIR,
@@ -187,10 +197,12 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
       return { message: "Server wird gestartet …" };
     }
     case "stop": {
+      console.log(`[MineHost] Stoppe Minecraft-Server …`);
       await mc.stop();
       return { message: "Server gestoppt." };
     }
     case "restart": {
+      console.log(`[MineHost] Starte Minecraft-Server neu …`);
       await mc.stop();
       await mc.start({
         serverDir: SERVER_DIR,
@@ -290,9 +302,26 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
       return { enabled: false, days: [1, 3, 5], hour: 4, keep: 5 };
     case "files_pending":
       return { entries: [] };
+    case "profiles_list":
+      return { active: "default", profiles: [{ id: "default", name: "Standard-Server" }] };
     default:
       return { message: "OK" };
   }
+}
+
+function startLocalWebPanel(state: HostState, portToTry: number) {
+  const srv = createServer((req, res) => {
+    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
+    res.end(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>MineHost Local Daemon</title><style>body{background:#050a08;color:#edf8f2;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:#0b1612;border:1px solid rgba(52,211,153,.28);border-radius:18px;padding:32px;max-width:480px;box-shadow:0 24px 60px rgba(0,0,0,.8)}a{display:inline-block;margin-top:16px;padding:12px 20px;border-radius:10px;background:#24dc8e;color:#04160e;font-weight:700;text-decoration:none}</style></head><body><div class="card"><h2>MineHost Host-Daemon aktiv</h2><p>Host: <b>${hostModelName()}</b></p><p>Lokale IP: <code>${getLocalLanIp()}:${state.port}</code></p><p>Status: <b>${mc.phase}</b></p><a href="${DASHBOARD_SITE}">Cloud-Dashboard öffnen ↗</a></div></body></html>`);
+  });
+  srv.on("error", (err: any) => {
+    if (err?.code === "EADDRINUSE" && portToTry < LOCAL_WEB_PORT + 15) {
+      startLocalWebPanel(state, portToTry + 1);
+    }
+  });
+  srv.listen(portToTry, "127.0.0.1", () => {
+    console.log(`[MineHost] Lokaler Status-Server läuft auf http://127.0.0.1:${portToTry}`);
+  });
 }
 
 async function main() {
@@ -300,23 +329,22 @@ async function main() {
   await mkdir(BACKUPS_DIR, { recursive: true });
   const state = await loadState();
 
-  createServer((req, res) => {
-    res.writeHead(200, { "Content-Type": "text/html; charset=utf-8" });
-    res.end(`<!doctype html><html lang="de"><head><meta charset="utf-8"><title>MineHost Local Daemon</title><style>body{background:#050a08;color:#edf8f2;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;margin:0}.card{background:#0b1612;border:1px solid rgba(52,211,153,.28);border-radius:18px;padding:32px;max-width:480px;box-shadow:0 24px 60px rgba(0,0,0,.8)}a{display:inline-block;margin-top:16px;padding:12px 20px;border-radius:10px;background:#24dc8e;color:#04160e;font-weight:700;text-decoration:none}</style></head><body><div class="card"><h2>MineHost Host-Daemon aktiv</h2><p>Host: <b>${hostModelName()}</b></p><p>Lokale IP: <code>${getLocalLanIp()}:${state.port}</code></p><p>Status: <b>${mc.phase}</b></p><a href="${DASHBOARD_SITE}">Cloud-Dashboard öffnen ↗</a></div></body></html>`);
-  }).listen(LOCAL_WEB_PORT, "127.0.0.1", () => {
-    console.log(`[MineHost] Lokaler Status-Server läuft auf http://127.0.0.1:${LOCAL_WEB_PORT}`);
-  });
+  startLocalWebPanel(state, LOCAL_WEB_PORT);
 
-  const link = await ensureLinked();
+  let link = await ensureLinked();
   const pubIp = await getPublicWanIp();
+  let announcedOnline = false;
 
   for (;;) {
     try {
-      const payload = {
+      const snapshot = {
         phase: mc.phase,
         configured: state.configured,
         model: hostModelName(),
         managementVersion: 12,
+        profileId: "default",
+        profileName: "Windows / Linux Server",
+        profiles: { active: "default", profiles: [{ id: "default", name: "Windows / Linux Server" }] },
         software: { software: state.software, version: state.version, build: state.build },
         console: mc.getConsoleSnapshot(),
         lan: `${getLocalLanIp()}:${state.port}`,
@@ -331,7 +359,10 @@ async function main() {
           externalPort: state.externalPort,
           address: pubIp ? `${pubIp}:${state.externalPort}` : `${getLocalLanIp()}:${state.port}`,
         },
-        results: [] as any[],
+        internet: {
+          phase: "ready",
+          addresses: [pubIp ? `${pubIp}:${state.externalPort}` : `${getLocalLanIp()}:${state.port}`],
+        },
       };
 
       const res = await fetch(`${link.siteUrl}/api/device`, {
@@ -340,10 +371,27 @@ async function main() {
           Authorization: `Bearer ${link.deviceToken}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ snapshot, results: [] }),
       });
 
+      if (res.status === 401) {
+        console.log("[MineHost] Verknüpfung wurde zurückgesetzt. Starte neue Kopplung …");
+        await unlink(REMOTE_FILE).catch(() => {});
+        link = await ensureLinked();
+        announcedOnline = false;
+        continue;
+      }
+
       if (res.ok) {
+        if (!announcedOnline) {
+          announcedOnline = true;
+          console.log(`===================================================================`);
+          console.log(`  [MineHost] ONLINE & MIT DASHBOARD VERBUNDEN!`);
+          console.log(`  Host:      ${hostModelName()}`);
+          console.log(`  Dashboard: ${link.siteUrl}/?server=${link.serverId}`);
+          console.log(`  (Lasse dieses Fenster geöffnet, solange dein Server laufen soll)`);
+          console.log(`===================================================================\n`);
+        }
         const data: any = await res.json();
         const jobs: any[] = data.jobs || [];
         const results: any[] = [];
@@ -366,14 +414,21 @@ async function main() {
               Authorization: `Bearer ${link.deviceToken}`,
               "Content-Type": "application/json",
             },
-            body: JSON.stringify({ ...payload, results }),
+            body: JSON.stringify({ snapshot, results }),
           });
         }
+      } else {
+        const errText = await res.text().catch(() => "");
+        console.error(`[MineHost] Dashboard-Antwort HTTP ${res.status}: ${errText}`);
       }
-    } catch {}
-    await new Promise(r => setTimeout(r, 2000));
+    } catch (err) {
+      console.error("[MineHost] Verbindungsfehler (wird automatisch wiederholt):", err instanceof Error ? err.message : err);
+    }
+    await new Promise(r => setTimeout(r, 1500));
   }
 }
 
-void main();
-
+main().catch(err => {
+  console.error("\n[MineHost] Kritischer Fehler:", err);
+  process.exitCode = 1;
+});

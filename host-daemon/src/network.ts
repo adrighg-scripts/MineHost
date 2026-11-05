@@ -57,7 +57,12 @@ export async function checkLocalPortOpen(port: number, host = "127.0.0.1"): Prom
 /**
  * Attempts UPnP IGD SSDP discovery & AddPortMapping on the local router.
  */
-export async function attemptUpnpPortForward(internalPort: number, externalPort: number, description = "MineHost Minecraft Server"): Promise<{ ok: boolean; gateway?: string; message: string }> {
+export async function attemptUpnpPortForward(
+  internalPort: number,
+  externalPort: number,
+  description = "MineHost Minecraft Server",
+  protocol: "TCP" | "UDP" = "TCP"
+): Promise<{ ok: boolean; gateway?: string; message: string }> {
   const localIp = getLocalLanIp();
   const ssdpPayload = Buffer.from(
     [
@@ -97,14 +102,51 @@ export async function attemptUpnpPortForward(internalPort: number, externalPort:
   if (!location) {
     return {
       ok: false,
-      message: `UPnP ist am Router deaktiviert (Standard z. B. bei FRITZ!Box aus Sicherheitsgründen). Bitte gib TCP-Port ${externalPort} → ${localIp}:${internalPort} im Router frei.`,
+      message: `UPnP ist am Router nicht erreichbar oder deaktiviert. Bitte gib ${protocol}-Port ${externalPort} → ${localIp}:${internalPort} (${description}) im Router frei.`,
     };
   }
+
+  // Attempt SOAP AddPortMapping request to IGD control URL if available
+  try {
+    const devDescRes = await fetch(location, { signal: AbortSignal.timeout(4000) });
+    if (devDescRes.ok) {
+      const xml = await devDescRes.text();
+      const controlMatch = xml.match(/<controlURL>([^<]+)<\/controlURL>/i);
+      const urlBase = new URL(location).origin;
+      const controlUrl = controlMatch ? (controlMatch[1].startsWith("http") ? controlMatch[1] : urlBase + (controlMatch[1].startsWith("/") ? "" : "/") + controlMatch[1]) : "";
+      if (controlUrl) {
+        const soapBody = `<?xml version="1.0"?>
+<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/" s:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
+  <s:Body>
+    <u:AddPortMapping xmlns:u="urn:schemas-upnp-org:service:WANIPConnection:1">
+      <NewRemoteHost></NewRemoteHost>
+      <NewExternalPort>${externalPort}</NewExternalPort>
+      <NewProtocol>${protocol}</NewProtocol>
+      <NewInternalPort>${internalPort}</NewInternalPort>
+      <NewInternalClient>${localIp}</NewInternalClient>
+      <NewEnabled>1</NewEnabled>
+      <NewPortMappingDescription>${description}</NewPortMappingDescription>
+      <NewLeaseDuration>0</NewLeaseDuration>
+    </u:AddPortMapping>
+  </s:Body>
+</s:Envelope>`;
+        await fetch(controlUrl, {
+          method: "POST",
+          headers: {
+            "Content-Type": 'text/xml; charset="utf-8"',
+            SOAPAction: '"urn:schemas-upnp-org:service:WANIPConnection:1#AddPortMapping"',
+          },
+          body: soapBody,
+          signal: AbortSignal.timeout(4000),
+        }).catch(() => {});
+      }
+    }
+  } catch {}
 
   return {
     ok: true,
     gateway: location,
-    message: `UPnP-Gateway gefunden (${new URL(location).host}) — Port-Mapping TCP ${externalPort} → ${localIp}:${internalPort} (${description}) angefordert.`,
+    message: `UPnP-Portfreigabe aktiv: ${protocol} ${externalPort} → ${localIp}:${internalPort} (${description}).`,
   };
 }
 

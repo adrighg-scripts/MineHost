@@ -39,10 +39,10 @@ export default function NetworkPanel({ network, lan, online, canWrite, run, tuto
         setTimeout(() => setCopiedField(""), 2000);
     }
 
-    async function saveVoice() {
+    async function saveVoice(upnp = false) {
         setBusy(true);
         try {
-            const result = await run("voice_configure", { internalPort: voiceInternal, externalPort: voiceExternal });
+            const result = await run("voice_configure", { internalPort: voiceInternal, externalPort: voiceExternal, upnp });
             setMessage(t(result.message));
             setVoiceDirty(false);
         } catch (error) {
@@ -145,7 +145,24 @@ export default function NetworkPanel({ network, lan, online, canWrite, run, tuto
             </li>
         </ol>
 
-        {network?.voice && <details open={network.voice.installed || undefined}><summary>Simple Voice Chat (UDP)</summary><p>{t("Voice Chat braucht eine eigene UDP-Freigabe auf dieselbe Host-IP.")}</p><form onSubmit={event => { event.preventDefault(); void saveVoice(); }}><div className="settings-grid"><label>{t("Interner UDP-Port")}<input type="number" required min={1024} max={65535} value={voiceInternal} onChange={event => { setVoiceDirty(true); setVoiceInternal(Number(event.target.value)); }}/></label><label>{t("Externer UDP-Port")}<input type="number" required min={1} max={65535} value={voiceExternal} onChange={event => { setVoiceDirty(true); setVoiceExternal(Number(event.target.value)); }}/></label></div><button className="btn btn-blue" disabled={!online || !canWrite || busy}>{t("Voice Chat speichern")}</button></form><p role="status">{t(message)}</p></details>}
+        <details open={network?.voice ? true : undefined}><summary><Zap size={14} style={{ verticalAlign: "middle", marginRight: 6 }}/>Simple Voice Chat (UDP-Port & UPnP)</summary>
+            <p>{t("Voice Chat braucht eine eigene UDP-Freigabe auf dieselbe Host-IP. Kann per 1-Klick-UPnP automatisch am Router geöffnet werden.")}</p>
+            <form onSubmit={event => { event.preventDefault(); void saveVoice(false); }}>
+                <div className="settings-grid">
+                    <label>{t("Interner UDP-Port")}<input type="number" required min={1024} max={65535} value={voiceInternal} onChange={event => { setVoiceDirty(true); setVoiceInternal(Number(event.target.value)); }}/></label>
+                    <label>{t("Externer UDP-Port")}<input type="number" required min={1} max={65535} value={voiceExternal} onChange={event => { setVoiceDirty(true); setVoiceExternal(Number(event.target.value)); }}/></label>
+                </div>
+                <div className="toolbar" style={{ marginTop: 12 }}>
+                    <button type="button" className="btn btn-blue" disabled={!online || !canWrite || busy} onClick={() => void saveVoice(true)}>
+                        <Zap size={14}/>{busy ? "Wird geöffnet …" : "Voice Chat UDP-Port per UPnP öffnen"}
+                    </button>
+                    <button type="submit" className="btn btn-outline" disabled={!online || !canWrite || busy}>
+                        {t("Manuell speichern")}
+                    </button>
+                </div>
+            </form>
+            <p role="status">{t(message)}</p>
+        </details>
 
         <details open><summary><Globe size={15} style={{ verticalAlign: "middle", marginRight: 6 }}/>{locale === "en" ? "Custom Domain Guide (A-Record, SRV-Record & Free DuckDNS)" : "Eigene Domain einrichten – Schritt für Schritt erklärt (A-Record, SRV & Gratis-Domains)"}</summary>
             <div style={{ marginTop: 12, display: "grid", gap: 14 }}>

@@ -280,7 +280,13 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
     case "network_configure": {
       if (payload.externalPort) state.externalPort = Number(payload.externalPort);
       await saveState(state);
-      const upnp = await attemptUpnpPortForward(state.port, state.externalPort);
+      const upnp = await attemptUpnpPortForward(state.port, state.externalPort, "MineHost Minecraft Server", "TCP");
+      return { message: upnp.message };
+    }
+    case "voice_configure": {
+      const internalPort = Number(payload.internalPort || 24454);
+      const externalPort = Number(payload.externalPort || internalPort);
+      const upnp = await attemptUpnpPortForward(internalPort, externalPort, "MineHost Simple Voice Chat", "UDP");
       return { message: upnp.message };
     }
     case "network_check": {

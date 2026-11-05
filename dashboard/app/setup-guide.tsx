@@ -31,13 +31,233 @@ export function SetupGuide({phone,owner,run,navigate,close}:Props){
  {step===6&&<><p>{l("Dein Server wird vollständig über diese Website verwaltet. Du kannst das Tutorial jederzeit unter Hilfe erneut öffnen.","Manage your server through this website. Reopen this tutorial any time under Help.")}</p><ul className="setup-steps">{[["Konsole","Console","Starten, stoppen und Befehle eingeben. Ein Stopp speichert die Welt.","Start, stop and send commands. Stopping saves your world."],["Dateien","Files","Dateien und Ordner hochladen oder suchen.","Upload or search for files and folders."],["Plugins / Mods","Plugins / Mods","Kompatible Erweiterungen im Katalog suchen und herunterladen. Bei Paper Plugins, bei Fabric Mods.","Find and download compatible extensions from the catalog: plugins for Paper, mods for Fabric."],["Spieler","Players","Online-Spieler, Inventar und Whitelist verwalten.","View online players and inventories and manage the allowlist."],["Backups","Backups","Sicherungen planen, herunterladen und bei gestopptem Server wiederherstellen.","Schedule, download and restore backups with the server stopped."],["Mitglieder & Rechte","Members & permissions","Freunde mit genau den gewünschten Website-Rechten einladen.","Invite friends with the website permissions you choose."]].map(([de,en,body,english])=><li key={de}><strong>{l(de,en)}</strong><p>{l(body,english)}</p></li>)}</ul></>}
  {error&&<p role="alert" className="log-error">{t(error)}</p>}<div className="toolbar"><button className="btn btn-outline" disabled={step===0||busy} onClick={()=>{setError("");setStep(s=>s-1);}}>{l("Zurück","Back")}</button><button className="btn btn-blue" disabled={busy} onClick={()=>step===6?close():void next()}>{busy?l("Wird gespeichert …","Saving …"):step===6?l("Fertig","Finish"):l("Weiter","Next")}</button></div></section>;
 }
-export function HelpPanel({start,owner}:{start:()=>void;owner:boolean}){const {locale,t}=useLanguage(),l=(de:string,en:string)=>locale==="de"?de:en;return <section className="panel help-panel"><h2>{l("Hilfe","Help")}</h2>{owner&&<button className="btn btn-blue" onClick={start}>{l("Komplettes Tutorial starten","Start complete tutorial")}</button>}{[
- ["Wie beginne ich?","How do I begin?","Lade die APK herunter. Öffne MineHost → Einrichtung starten. Erstelle auf der Website dein Konto, bestätige das Handy und kehre kurz zur App zurück. Auf der Website führt dich das Tutorial von der Installation bis zum Beitritt deiner Freunde.","Install the APK. Open MineHost → Start setup. Create your website account, confirm your phone and return to the app briefly. The website tutorial takes you from installation to friends joining."],
- ["Der Server startet lange oder ruckelt","Startup is slow or the game lags","Beim ersten Start werden Java, Bibliotheken und die Welt geladen. Warte auf „Läuft“ und prüfe die Konsole auf Fehler. Senke Sichtweite und Simulationsdistanz unter Einstellungen. Zu viele Spieler oder Erweiterungen benötigen mehr RAM und CPU. Hohe Werte sind kein schnellerer Server.","The first start loads Java, libraries and the world. Wait for Running and check the console for errors. Lower view and simulation distance under Settings. More players and extensions need more RAM and CPU. Higher settings do not make a server faster."],
- ["Die Website zeigt Handy offline","The website says phone offline","Prüfe WLAN/Internet am Handy. Öffne MineHost und tippe auf Website öffnen. Erlaube der App Hintergrundbetrieb unter Android → Apps → MineHost → Akku. Das Handy muss eingeschaltet bleiben.","Check your phone's Wi-Fi/internet. Open MineHost and select Open website. Allow background operation under Android → Apps → MineHost → Battery. Keep the phone on."],
- ["Freunde können nicht beitreten","Friends cannot join","Teste zuerst im gleichen WLAN mit der WLAN-Adresse. Für andere Netzwerke: Server starten, unter Netzwerk die TCP-Freigabe mit der angezeigten Handy-IP und dem internen Port einrichten, speichern und prüfen. Teile die öffentliche Adresse inklusive externem Port. Bei DS-Lite/CGNAT ist normales IPv4-Portforwarding nicht möglich; frage deinen Internetanbieter nach öffentlicher IPv4. Prüfe Spielversion und Whitelist.","Test on the same Wi-Fi with the local address first. For other networks: start your server, follow Network to forward TCP to the displayed phone IP and internal port, save and test. Share the public address including the external port. Normal IPv4 forwarding does not work behind DS-Lite/CGNAT; ask your ISP for public IPv4. Check game version and allowlist."],
- ["Plugins oder Mods hinzufügen","Add plugins or mods","Paper verwendet Plugins, Fabric verwendet Mods. Stoppe den Server, suche die Erweiterung im passenden Tab und klicke Download. Alternativ ziehe kompatible JAR-Dateien in Dateien → plugins bzw. mods. Starte danach neu. Manche Fabric-Mods brauchen alle Spieler. CurseForge benötigt einen eingerichteten API-Zugang; Modrinth funktioniert ohne eigenen Schlüssel.","Paper uses plugins and Fabric uses mods. Stop the server, search in the matching tab and select Download. Alternatively, drop compatible JAR files into Files → plugins or mods. Then restart. Some Fabric mods are needed by every player. CurseForge requires configured API access; Modrinth needs no personal key."],
- ["Eine Sicherung wiederherstellen","Restore a backup","Stoppe zuerst den Server. Unter Backups kannst du Umfang und Details ansehen und Wiederherstellen wählen. Vollständige Sicherungen ersetzen den Serverstand, ausgewählte Bereiche nur ihren jeweiligen Umfang. Vorher wird eine Sicherheitskopie erstellt. Automatische Backups laufen nur, solange MineHost aktiv ist.","Stop the server first. Under Backups, inspect the scope and details and select Restore. Full backups replace the server state; scoped backups replace only their selected scope. A safety copy is created first. Scheduled backups run only while MineHost is active."],
- ["Sicherheit und Rechte","Security and permissions","Gib nur Minecraft-Ports frei, keine Adminports oder DMZ/Exposed Host. Minecraft-Konto-Prüfung bleibt an. Nutze Whitelist und Backups. Website-Einladungen unter Mitglieder & Rechte lassen sich begrenzen und widerrufen. Teile dein Passwort nicht.","Forward only Minecraft ports, no admin ports or DMZ/Exposed Host. Minecraft account verification stays on. Use the allowlist and backups. Limit and revoke website invitations under Members & permissions. Keep your password private."],
- ["Sprache ändern","Change language","Die Sprache folgt zunächst deinem Gerät. Wähle oben auf der Website oder in der App Deutsch oder English, um sie selbst festzulegen.","Language follows your device by default. Select Deutsch or English at the top of the website or in the app to override it."]
- ].map(([de,en,body,english])=><details key={de}><summary>{l(de,en)}</summary><p>{l(body,english)}</p></details>)}</section>;}
+export function HelpPanel({start,owner}:{start:()=>void;owner:boolean}){
+ const {locale}=useLanguage(),l=(de:string,en:string)=>locale==="de"?de:en;
+ const [cat,setCat]=useState("all");
+ const [search,setSearch]=useState("");
+ const [openAll,setOpenAll]=useState(false);
+
+ const categories=[
+  {
+   id:"quickstart",
+   titleDe:"🚀 Schnellstart & Plattformen (Android, Windows, Linux & iOS)",
+   titleEn:"🚀 Quickstart & Platforms (Android, Windows, Linux & iOS)",
+   items:[
+    [
+     "Wie beginne ich auf Android, Windows, Linux/Ubuntu oder iOS?",
+     "How do I begin?",
+     "1. Lade für dein Host-Gerät die passende Version herunter: Auf Android die MineHost.apk, auf Windows MineHost_Windows.zip (Start-MineHost-Windows.bat starten) oder auf Linux/Ubuntu MineHost_Linux.zip (./start-minehost-linux.sh starten).\n2. Erstelle auf der Website dein Konto und bestätige einmalig die Verknüpfung deines Host-Geräts.\n3. Wähle unter „Serversoftware“ deine gewünschte Engine (z. B. PaperMC oder Fabric) und Minecraft-Version (1.0 bis aktuellste Version). MineHost lädt automatisch das passende portable Java herunter.\n4. Klicke oben rechts auf „Start“ – dein Server läuft!",
+     "Install the APK on Android or extract the Windows/Linux package and run the starter script. Create your website account, confirm your host device, choose your server software and version, and press Start."
+    ],
+    [
+     "Wie nutze ich MineHost auf dem iPhone oder iPad (iOS)?",
+     "How do I use MineHost on iPhone or iPad (iOS)?",
+     "Da Apple (iOS) Hintergrund-Java-Serverprozesse auf iPhones blockiert, funktioniert MineHost auf iOS als vollwertige Remote-Control Web-App (PWA): Öffne https://minehost-dashboard.adrilolghg.workers.dev in Safari auf deinem iPhone/iPad, tippe unten auf „Teilen“ (Viereck mit Pfeil) → „Zum Home-Bildschirm“. Danach hast du MineHost als Vollbild-App auf deinem iPhone und steuerst deinen Server-Host (auf PC, Linux oder Android) von überall in Echtzeit.",
+     "Open the dashboard in Safari on your iPhone/iPad and tap Share → Add to Home Screen to install MineHost as a full-screen iOS app to control your Windows, Linux, or Android server host from anywhere."
+    ],
+    [
+     "Wie starte ich den Server-Host auf Windows 10/11 oder Linux/Ubuntu?",
+     "How do I run the server host on Windows or Linux/Ubuntu?",
+     "• Windows: Entpacke MineHost_Windows.zip in einen Ordner und doppelklicke auf Start-MineHost-Windows.bat. Falls Node.js oder Java noch nicht installiert sind, lädt MineHost beides vollautomatisch portabel in den Ordner herunter.\n• Linux / Ubuntu: Entpacke MineHost_Linux.zip, führe chmod +x start-minehost-linux.sh && ./start-minehost-linux.sh aus. Zusätzlich steht dir lokal http://localhost:8787 zur Verfügung.",
+     "On Windows, extract MineHost_Windows.zip and double-click Start-MineHost-Windows.bat. On Linux/Ubuntu, run ./start-minehost-linux.sh. Portable Node.js and Adoptium Java are downloaded automatically."
+    ],
+    [
+     "Die Website zeigt „Host offline“ / „Handy offline“ – was tun?",
+     "The website says phone offline",
+     "• Auf Android: Prüfe WLAN/Internet am Handy, öffne die MineHost-App und stelle unter Android → Einstellungen → Apps → MineHost → Akku auf „Uneingeschränkt“ (Unrestricted), damit Android den Server nicht im Standby beendet.\n• Auf Windows / Linux: Prüfe, ob das Starter-Fenster (Start-MineHost-Windows.bat bzw. start-minehost-linux.sh) noch geöffnet ist und Internetverbindung besteht.",
+     "Check your host's Wi-Fi/internet. On Android, open MineHost and set Android → Apps → MineHost → Battery to Unrestricted so Android does not suspend the server."
+    ],
+    [
+     "Mehrere Server-Profile (Welten) auf einem Gerät erstellen & wechseln",
+     "Create and switch between multiple server profiles",
+     "Klicke links in der Seitenleiste neben dem Server-Dropdown auf das Zahnrad-Symbol („Server verwalten“). Dort kannst du beliebig viele getrennte Server-Profile (z. B. einen Paper-SMP-Server, einen Fabric-Mod-Server und eine Creative-Welt) anlegen, umbenennen oder wechseln. Jedes Profil besitzt eigene Welten, Plugins, Einstellungen und Backups. Zum Wechseln muss der aktuell laufende Server kurz gestoppt sein.",
+     "Click the gear icon next to the server selector in the sidebar to create, rename, or switch isolated server profiles. Each profile keeps its own world, plugins, settings, and backups."
+    ]
+   ]
+  },
+  {
+   id:"network",
+   titleDe:"🌐 Netzwerk, Portfreigabe, UPnP & Eigene Domain",
+   titleEn:"🌐 Network, Port Forwarding, UPnP & Custom Domain",
+   items:[
+    [
+     "Freunde können nicht beitreten (Checkliste für WLAN & Internet)",
+     "Friends cannot join",
+     "1. Im selben WLAN (Heimnetz): Nutze die lokale IP-Adresse (z. B. 192.168.178.x:25565), die im Tab „Netzwerk“ unter „Lokale IP“ steht.\n2. Über das Internet (andere Netzwerke): Deine Freunde brauchen zwingend die „Öffentliche IP (WAN)“ inklusive Port! Richte im Tab „Netzwerk“ entweder per 1-Klick „UPnP-Portfreigabe aktivieren“ oder manuell im Router eine TCP-Portfreigabe für deinen Host (Standard-Port 25565) ein.\n3. Prüfe außerdem: Läuft der Server („Läuft“)? Stimmt die Minecraft-Version überein? Falls die Whitelist aktiv ist: Steht der Freund im Tab „Spieler“ auf der Whitelist?",
+     "Test on the same Wi-Fi with the local address first. For other networks: start your server, follow Network to forward TCP to the displayed host IP and internal port (or use 1-Click UPnP), save and test. Share the public address including the external port. Normal IPv4 forwarding does not work behind DS-Lite/CGNAT; ask your ISP for public IPv4. Check game version and allowlist."
+    ],
+    [
+     "Wie funktioniert eine eigene Domain (z. B. mc.deinedomain.de oder kostenlos via DuckDNS)?",
+     "How do I set up a custom domain (A-Record, SRV-Record & DuckDNS)?",
+     "• Kostenlos ohne Domain-Kauf (DuckDNS): Gehe auf duckdns.org, wähle einen freien Namen (z. B. meinserver.duckdns.org) und trage deine öffentliche IP aus dem Tab „Netzwerk“ ein.\n• Mit eigener Domain (Cloudflare, Strato, IONOS, Namecheap): Öffne bei deinem Domain-Anbieter die DNS-Einstellungen:\n  1. A-Record anlegen: Typ = A, Name = mc (für mc.deinedomain.de), Ziel = deine öffentliche Router-IP. WICHTIG bei Cloudflare: Stelle die Wolke auf „DNS Only“ (Graue Wolke), da die orange Wolke Minecraft blockiert!\n  2. SRV-Record anlegen (nur nötig, wenn dein externer Port NICHT 25565 ist): Typ = SRV, Name = _minecraft._tcp.mc, Priorität = 0, Gewicht = 5, Port = dein externer Port, Ziel = mc.deinedomain.de. Dadurch müssen Freunde keinen Port hinter der Domain eingeben.",
+     "Use DuckDNS for a free subdomain or add an A-Record (pointing to your public WAN IP with Cloudflare Proxy disabled / grey cloud) and an optional SRV-Record (_minecraft._tcp) at your domain registrar."
+    ],
+    [
+     "Was bedeutet DS-Lite / CGNAT und warum geht Portforwarding manchmal nicht?",
+     "What is DS-Lite / CGNAT and how do I bypass it?",
+     "Manche Internetanbieter (z. B. Kabel-Internet, Glasfaser oder Mobilfunk) vergeben keine eigene öffentliche IPv4-Adresse an deinen Router (sogenanntes DS-Lite oder Carrier-Grade NAT). Dann kommen Portfreigaben von außen nicht bei deinem Router an.\nLösungen:\n• Lösung 1: Rufe kurz beim Kundenservice deines Internetanbieters an und bitte um „Dual-Stack / eine öffentliche dynamische IPv4-Adresse“ (bei Vodafone, Telekom & o2 meist kostenlos in 5 Minuten freigeschaltet).\n• Lösung 2 (ohne Router-Portfreigabe): Nutze das kostenlose Plugin/Programm „playit.gg“ (gibt es direkt als Plugin für Paper/Fabric oder als kleines Hintergrundprogramm für Windows/Linux). Damit bekommst du sofort eine öffentliche Tunnel-Adresse ohne Router-Konfiguration.",
+     "If your ISP uses CGNAT or DS-Lite without a public IPv4 address, router port forwarding cannot be reached from outside. Ask your ISP to enable public Dual-Stack IPv4, or install the free playit.gg plugin/tunnel."
+    ],
+    [
+     "Simple Voice Chat (In-Game Sprachchat) einrichten",
+     "Set up Simple Voice Chat (UDP)",
+     "Wenn du das Plugin oder die Mod „Simple Voice Chat“ installiert hast, erkennt MineHost dies automatisch und blendet im Tab „Netzwerk“ den Bereich „Simple Voice Chat (UDP)“ ein. Lege in deinem Router zusätzlich zur TCP-Freigabe (für Minecraft) eine UDP-Portfreigabe für den Voice-Chat-Port (Standard: 24454) auf dieselbe Host-IP an.",
+     "When Simple Voice Chat is installed, open the Network tab to configure its UDP port (default 24454) and add a matching UDP port forwarding rule on your router."
+    ]
+   ]
+  },
+  {
+   id:"software",
+   titleDe:"⚙️ Serversoftware, Java-Manager & Performance (Lag beheben)",
+   titleEn:"⚙️ Server Software, Java Manager & Performance",
+   items:[
+    [
+     "Welche Serversoftware (Engine) ist die richtige für mich?",
+     "Which server software (engine) should I choose?",
+     "• PaperMC / Purpur (Empfohlen für 90 % aller Server): Extrem schnell, ressourcenschonend und kompatibel mit tausenden Bukkit-, Spigot- und Paper-Plugins, ohne dass Mitspieler etwas auf ihrem PC installieren müssen.\n• Fabric / Forge / NeoForge / Quilt: Für Mod-Server (neue Blöcke, Biome, Technik-Mods, Modpacks). Hinweis: Content-Mods müssen auch bei allen Mitspielern im Minecraft-Launcher installiert sein.\n• Vanilla: Das unveränderte Original von Mojang (inklusive Snapshots), ideal für 100 % originales Redstone-Verhalten.\n• Pumpkin (Native Rust): Extrem schneller, nativer Server mit minimalem RAM-Verbrauch und experimentellem Java + Bedrock Crossplay.\n• Velocity / BungeeCord / Waterfall: Proxy-Server, um mehrere Minecraft-Server zu einem Netzwerk zu verbinden.",
+     "Choose PaperMC or Purpur for high performance and plugins without client installation; Fabric, Forge, NeoForge, or Quilt for mods; Vanilla for official Mojang releases; or Pumpkin for native Rust & Bedrock crossplay."
+    ],
+    [
+     "Muss ich Java selbst installieren? (Automatischer Portable-Java-Manager)",
+     "Do I need to install Java manually? (Portable Java Manager)",
+     "Nein! MineHost besitzt einen vollautomatischen Portable-Java-Manager (über die offizielle Adoptium Temurin API bzw. integriert in der Android-APK). Je nach gewählter Minecraft-Version weist MineHost beim Start automatisch die exakt passende Java-Version zu:\n• Minecraft 1.0 bis 1.16.5 → Java 8 LTS\n• Minecraft 1.17 → Java 16\n• Minecraft 1.18 bis 1.20.4 → Java 17 LTS\n• Minecraft 1.20.5 bis aktuellste Version → Java 21 / 25 LTS",
+     "No! MineHost automatically downloads and assigns the required portable Java runtime (Java 8, 16, 17, 21, or 25) based on your selected Minecraft version."
+    ],
+    [
+     "Der Server startet lange oder ruckelt (TPS-Drops & Lag beheben)",
+     "Startup is slow or the game lags",
+     "Beim allerersten Start werden Java, Bibliotheken und die Spawn-Chunks der Welt generiert – das dauert einmalig 1–3 Minuten. Wenn es im Spiel ruckelt (TPS unter 20):\n1. Öffne den Tab „Einstellungen“ und aktiviere „Aikar's Flags (G1GC)“ – das verhindert Ruckler durch die Java-Speicherbereinigung.\n2. Senke „Sichtweite (Chunks)“ auf 8–10 und „Simulationsdistanz“ auf 6–8.\n3. Erhöhe über den RAM-Schieberegler den zugewiesenen Arbeitsspeicher (z. B. 2048–4096 MiB), lasse dem Betriebssystem aber mindestens 1,5 GB frei.\n4. Nutze PaperMC oder Purpur statt Vanilla, oder installiere auf Fabric die Performance-Mod „Lithium“.",
+     "The first start loads Java, libraries and the world. Wait for Running and check the console for errors. Lower view and simulation distance under Settings. More players and extensions need more RAM and CPU. Higher settings do not make a server faster."
+    ],
+    [
+     "Minecraft-Version wechseln & Kompatibilitäts-Prüfung",
+     "Switching Minecraft versions & compatibility check",
+     "Du kannst unter „Serversoftware“ jederzeit auf eine andere Minecraft-Version wechseln. MineHost prüft dabei automatisch über die Modrinth-API, ob deine installierten Plugins/Mods für die neue Version verfügbar sind, und legt vor jedem Wechsel automatisch ein Sicherheits-Backup an. Achtung bei Downgrades (z. B. von 1.21 zurück auf 1.19): Ältere Minecraft-Versionen können neuere Welt-Chunke oft nicht lesen – erstelle vorher immer ein Voll-Backup!",
+     "Switch versions anytime under Server Software. MineHost automatically checks Modrinth compatibility for your installed add-ons and backs up your server before switching."
+    ]
+   ]
+  },
+  {
+   id:"addons",
+   titleDe:"🧩 Plugins, Mods, Dateien & Konfigurationen",
+   titleEn:"🧩 Plugins, Mods, Files & Configurations",
+   items:[
+    [
+     "Plugins oder Mods hinzufügen (Modrinth-Store & eigene JARs)",
+     "Add plugins or mods",
+     "Paper verwendet Plugins, Fabric verwendet Mods. Öffne den Tab „Plugins“ bzw. „Mods“:\n• Über den integrierten Katalog: Tippe den Namen (z. B. WorldEdit, LuckPerms, Geyser, Lithium, Simple Voice Chat) ins Suchfeld und klicke auf „Download“. Benötigte Abhängigkeiten (wie die Fabric API) lädt MineHost automatisch mit.\n• Eigene .jar-Datei hochladen: Klicke oben rechts auf „JAR hochladen“ oder ziehe die Datei im Tab „Dateien“ in den Ordner plugins bzw. mods.\nStarte den Server danach einmal neu, damit die Erweiterung geladen wird.",
+     "Paper uses plugins and Fabric uses mods. Stop the server, search in the matching tab and select Download. Alternatively, drop compatible JAR files into Files → plugins or mods. Then restart. Some Fabric mods are needed by every player. CurseForge requires configured API access; Modrinth needs no personal key."
+    ],
+    [
+     "Eigene Welt (.zip) hochladen oder Dateien bearbeiten",
+     "Upload a custom world (.zip) or edit config files",
+     "Öffne den Tab „Dateien“:\n• Eigene Welt hochladen: Lade deine Welt als .zip-Archiv per Drag & Drop hoch und klicke in der Dateizeile auf den Button „Entpacken“ (Unzip). Benenne den entpackten Welt-Ordner in world um (bei gestopptem Server).\n• Konfigurationen bearbeiten: Über die Schnellzugriffs-Leiste oben im Dateimanager kannst du server.properties, whitelist.json, ops.json, banned-players.json und eula.txt mit 1 Klick öffnen. Der integrierte Live-Syntax-Prüfer warnt dich sofort bei Tippfehlern in JSON-, YAML- oder Properties-Dateien.",
+     "In the Files tab, upload a .zip archive and click Unzip to extract custom worlds or packs. Use the quick-access bar to edit server.properties, whitelist.json, or ops.json with live syntax validation."
+    ],
+    [
+     "Eigenes Server-Icon (64×64 Bild in der Serverliste) ändern",
+     "Change your server icon (server-icon.png)",
+     "Öffne den Tab „Einstellungen“ und scrolle ganz nach unten zum Button „Server-Icon ändern“. Wähle ein beliebiges PNG-, JPG- oder WebP-Bild aus – MineHost schneidet es automatisch auf das von Minecraft geforderte Format (64×64 Pixel PNG) zu und speichert es als server-icon.png.",
+     "At the bottom of the Settings tab, click Change server icon and pick any PNG, JPG, or WebP image. MineHost automatically resizes it to 64×64 pixels."
+    ]
+   ]
+  },
+  {
+   id:"players",
+   titleDe:"🎮 Spieler, Admin-Rechte (OP), Whitelist & Bedrock-Crossplay",
+   titleEn:"🎮 Players, OP Admin Rights, Allowlist & Bedrock Crossplay",
+   items:[
+    [
+     "Wie gebe ich mir oder Freunden OP-Rechte (Operator / Admin / Gamemode)?",
+     "How do I grant OP (Operator / Admin) permissions?",
+     "Dafür gibt es zwei einfache Wege:\n1. Grafisch im Tab „Spieler“: Sobald der Spieler online ist, klicke seinen Namen an und drücke auf den Button „OP“ (oder direkt auf „Kreativ“, „Survival“, „Heilen“).\n2. Über die Live-Konsole: Tippe unten in die Befehlszeile der Konsole op DeinSpielername (ohne Schrägstrich /) ein und drücke Enter.",
+     "Select an online player in the Players tab and click OP (or Creative / Survival / Heal), or type 'op PlayerName' in the Live Console."
+    ],
+    [
+     "Spieler kicken, bannen, entbannen (Pardon) & Whitelist verwalten",
+     "Kick, ban, unban (pardon) players & manage the allowlist",
+     "• Im Tab „Spieler“ findest du für jeden Online-Spieler 1-Klick-Buttons für „Kicken“, „Bannen“ und „Pardon (Entbannen)“.\n• Darunter kannst du unter „Whitelist verwalten“ Spielernamen hinzufügen oder entfernen sowie bereits gebannte Spieler jederzeit über „Gebannte Spieler entbannen (Pardon)“ wieder freischalten.\n• Ob die Whitelist aktiv ist, schaltest du im Tab „Einstellungen“ unter „Whitelist aktivieren“ um.",
+     "Use the 1-click buttons in the Players tab to kick, ban, or pardon players, and add or remove names under Manage allowlist."
+    ],
+    [
+     "Können Java- und Bedrock-Spieler (Handy, PS5, Xbox, Switch) zusammen spielen?",
+     "Can Java and Bedrock players play together (Crossplay)?",
+     "Ja! Es gibt zwei Möglichkeiten je nach Plattform:\n• Auf Android, Windows & Linux mit der Engine „Pumpkin“: Aktiviere unter „Einstellungen“ den Schalter „Bedrock-Spieler erlauben“ (Standard-Port 19132 TCP & UDP) und starte den Server neu.\n• Auf Windows & Linux mit PaperMC / Purpur: Installiere im Tab „Plugins“ die Erweiterungen „Geyser“ und „Floodgate“ und gib den UDP-Port 19132 frei.",
+     "Yes! On Pumpkin, enable 'Allow Bedrock players' in Settings (port 19132 TCP/UDP). On Windows/Linux PaperMC servers, you can also install the Geyser and Floodgate plugins."
+    ]
+   ]
+  },
+  {
+   id:"backups",
+   titleDe:"🛡️ Backups, Sicherheit, Co-Admins & Fehlerbehebung",
+   titleEn:"🛡️ Backups, Security, Co-Admins & Troubleshooting",
+   items:[
+    [
+     "Eine Sicherung (Backup) erstellen, planen oder wiederherstellen",
+     "Restore a backup",
+     "Stoppe für manuelle Backups oder Wiederherstellungen kurz den Server. Im Tab „Backups“ kannst du:\n• „Jetzt sichern“ klicken (entweder für den vollständigen Server oder ausgewählte Ordner wie world).\n• Automatische Backups nach Zeitplan (z. B. täglich um 03:00 Uhr oder alle 120 Minuten) inkl. Aufbewahrungslimit aktivieren.\n• Jedes Backup als .zip-Archiv auf deinen PC herunterladen oder mit 1 Klick auf „Wiederherstellen“ zurückspielen (vorher legt MineHost automatisch eine Sicherheitskopie des aktuellen Stands an).",
+     "Stop the server first. Under Backups, inspect the scope and details and select Restore. Full backups replace the server state; scoped backups replace only their selected scope. A safety copy is created first. Scheduled backups run only while MineHost is active."
+    ],
+    [
+     "Sicherheit und Rechte (Freunde als Co-Admins einladen)",
+     "Security and permissions",
+     "Teile niemals dein eigenes Konto-Passwort! Öffne stattdessen den Tab „Mitglieder & Rechte“. Dort kannst du einen Einladungslink erstellen und per Checkbox millimetergenau festlegen, was dein Freund darf (z. B. nur „Starten / Stoppen“ und „Konsole lesen“, aber keine „Dateien löschen“). Du kannst jeden Zugang zeitlich begrenzen oder jederzeit mit 1 Klick widerrufen.",
+     "Forward only Minecraft ports, no admin ports or DMZ/Exposed Host. Minecraft account verification stays on. Use the allowlist and backups. Limit and revoke website invitations under Members & permissions. Keep your password private."
+    ],
+    [
+     "Häufige Konsolenfehler & Sofort-Lösungen (Troubleshooting)",
+     "Common console errors & quick fixes",
+     "• „Failed to bind to port“: Der Port (z. B. 25565) wird bereits von einem anderen Prozess belegt. Ändere unter „Einstellungen“ den Minecraft-Port (z. B. auf 25566) oder stoppe die alte Instanz.\n• „java.lang.OutOfMemoryError: Java heap space“: Dem Server geht der RAM aus. Erhöhe im Tab „Einstellungen“ den RAM-Schieberegler oder reduziere die Sichtweite.\n• „UnsupportedClassVersionError“: Ein installiertes Plugin benötigt eine neuere Java-Version. Aktualisiere das Plugin im Tab „Plugins“.\n• „Failed to verify username!“: Ein Spieler ohne gekauftes Original-Minecraft (Cracked) versucht beizutreten, während online-mode=true aktiv ist.\n• Server hängt beim Stoppen („stop_error“): Klicke oben im roten Hinweisbanner auf „Hängenden Server beenden“, um den Prozess sauber zurückzusetzen.",
+     "Fixes for 'Failed to bind to port' (change port or stop duplicate process), 'OutOfMemoryError' (increase RAM slider or lower view distance), and 'UnsupportedClassVersionError' (update plugin or Minecraft version)."
+    ],
+    [
+     "Sprache ändern (Deutsch / English)",
+     "Change language",
+     "Die Sprache folgt zunächst deinem Gerät. Wähle oben rechts in der Kopfzeile der Website (oder in der App) jederzeit Deutsch oder English, um die Sprache sofort umzuschalten.",
+     "Language follows your device by default. Select Deutsch or English at the top of the website or in the app to override it."
+    ]
+   ]
+  }
+ ];
+
+ const q = search.trim().toLowerCase();
+ const filteredCategories = categories.filter(c => cat === "all" || c.id === cat).map(c => ({
+  ...c,
+  items: c.items.filter(([de,en,bodyDe,bodyEn]) => !q || de.toLowerCase().includes(q) || en.toLowerCase().includes(q) || bodyDe.toLowerCase().includes(q) || bodyEn.toLowerCase().includes(q))
+ })).filter(c => c.items.length > 0);
+
+ return <section className="panel help-panel">
+  <div className="section-heading">
+   <div>
+    <h2>{l("Hilfe, Handbuch & Problemlösungen","Help, Manual & Troubleshooting")}</h2>
+    <p>{l("Alle Anleitungen, Erklärungen und Lösungen übersichtlich nach Kategorien geordnet.","All guides, explanations, and troubleshooting tips organized by category.")}</p>
+   </div>
+   <div className="toolbar">
+    {owner&&<button className="btn btn-blue" onClick={start}>{l("Komplettes Tutorial starten","Start complete tutorial")}</button>}
+    <button type="button" className="btn btn-outline compact" onClick={()=>setOpenAll(!openAll)}>{openAll?l("Alle einklappen","Collapse all"):l("Alle ausklappen","Expand all")}</button>
+   </div>
+  </div>
+
+  <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:20}}>
+   <input
+    value={search}
+    onChange={e=>setSearch(e.target.value)}
+    placeholder={l("Hilfe durchsuchen (z. B. Domain, Port, Lag, OP, Backup, iOS, Mods) …","Search help topics (e.g. domain, port, lag, OP, backup, iOS, mods) …")}
+   />
+   <div className="quick-files-bar" style={{marginBottom:0}}>
+    <button type="button" className={`chip-btn ${cat==="all"?"active":""}`} onClick={()=>setCat("all")}>{l("Alle Kategorien","All categories")}</button>
+    {categories.map(c=><button key={c.id} type="button" className={`chip-btn ${cat===c.id?"active":""}`} onClick={()=>setCat(c.id)}>{l(c.titleDe,c.titleEn)}</button>)}
+   </div>
+  </div>
+
+  {filteredCategories.map(c=><div key={c.id} style={{marginBottom:26}}>
+   <h3 style={{color:"#34d399",fontSize:15,marginBottom:10,paddingBottom:8,borderBottom:"1px solid rgba(52,211,153,0.22)"}}>{l(c.titleDe,c.titleEn)}</h3>
+   {c.items.map(([de,en,bodyDe,bodyEn])=><details key={de} open={openAll||!!q||undefined}>
+    <summary style={{fontWeight:600,color:"#ecfdf5"}}>{l(de,en)}</summary>
+    <p style={{whiteSpace:"pre-line",marginTop:10,color:"#b8d4c6"}}>{l(bodyDe,bodyEn)}</p>
+   </details>)}
+  </div>)}
+
+  {!filteredCategories.length && <div className="empty-state"><strong>{l("Keine passenden Hilfe-Einträge gefunden.","No matching help topics found.")}</strong><button type="button" className="btn btn-outline compact" onClick={()=>{setSearch("");setCat("all");}}>{l("Filter zurücksetzen","Reset filters")}</button></div>}
+ </section>;
+}

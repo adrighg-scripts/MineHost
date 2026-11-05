@@ -44,6 +44,7 @@ const AIKARS_FLAGS = [
 export class MinecraftProcessManager extends EventEmitter {
   private proc: ChildProcessWithoutNullStreams | null = null;
   private logs: string[] = [];
+  public onlinePlayers = new Set<string>();
   public phase: "stopped" | "starting" | "running" | "stopping" | "error" = "stopped";
   public startedAt = 0;
 
@@ -91,6 +92,10 @@ export class MinecraftProcessManager extends EventEmitter {
           this.phase = "running";
           this.emit("phase", this.phase);
         }
+        const joinMatch = line.match(/\]: ([A-Za-z0-9_.]{1,32}) joined the game/);
+        if (joinMatch) this.onlinePlayers.add(joinMatch[1]);
+        const leaveMatch = line.match(/\]: ([A-Za-z0-9_.]{1,32}) (?:left the game|lost connection)/);
+        if (leaveMatch) this.onlinePlayers.delete(leaveMatch[1]);
       }
     });
 
@@ -102,6 +107,7 @@ export class MinecraftProcessManager extends EventEmitter {
 
     child.on("close", code => {
       this.proc = null;
+      this.onlinePlayers.clear();
       this.phase = code === 0 || this.phase === "stopping" ? "stopped" : "error";
       this.appendLog(`[MineHost] Serverprozess beendet (Exit-Code: ${code ?? 0}).`);
       this.emit("phase", this.phase);

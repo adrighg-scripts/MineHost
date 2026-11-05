@@ -16,6 +16,14 @@ import {
   resolveSandboxedPath,
 } from "./sandbox-fs.ts";
 import { getLocalLanIp, getPublicWanIp, attemptUpnpPortForward } from "./network.ts";
+import {
+  IDLE_REQUIRED_MS,
+  UPDATE_RESTART_EXIT_CODE,
+  checkLatestGitHubRelease,
+  downloadAndApplyHostUpdate,
+  getCurrentDaemonVersion,
+  isNewerVersion,
+} from "./auto-updater.ts";
 
 const execFileAsync = promisify(execFile);
 const DASHBOARD_SITE = process.env.MINEHOST_SITE || "https://minehost-dashboard.adrilolghg.workers.dev";
@@ -49,6 +57,7 @@ interface HostState {
   hardcore: boolean;
   forceGamemode: boolean;
   idleTimeout: number;
+  autoResumeAfterUpdate?: boolean;
 }
 
 const defaultState: HostState = {
@@ -295,7 +304,7 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
       };
     }
     case "players_get":
-      return { online: [], whitelist: [] };
+      return { online: Array.from(mc.onlinePlayers), whitelist: [] };
     case "backups_list":
       return { entries: [] };
     case "backup_schedule_get":
@@ -331,15 +340,80 @@ async function main() {
 
   startLocalWebPanel(state, LOCAL_WEB_PORT);
 
+  if (state.autoResumeAfterUpdate && state.configured) {
+    state.autoResumeAfterUpdate = false;
+    await saveState(state);
+    console.log("[Auto-Update] Update abgeschlossen – starte Minecraft-Server automatisch wieder …");
+    void mc
+      .start({
+        serverDir: SERVER_DIR,
+        dataDir: DATA_DIR,
+        mcVersion: state.version,
+        minRamMb: Math.max(512, Math.round(state.memory * 0.5)),
+        maxRamMb: state.memory,
+        useAikarsFlags: true,
+        port: state.port,
+      })
+      .catch(err => console.error("[Auto-Update] Fehler beim automatischen Wiederanlauf:", err));
+  }
+
   let link = await ensureLinked();
   const pubIp = await getPublicWanIp();
   let announcedOnline = false;
+  let idleSince = Date.now();
+  let lastUpdateCheck = 0;
 
   for (;;) {
     try {
+      if (mc.onlinePlayers.size > 0) {
+        idleSince = Date.now();
+      }
+      const now = Date.now();
+      if (now - lastUpdateCheck >= 60_000) {
+        lastUpdateCheck = now;
+        const currentVer = await getCurrentDaemonVersion(process.cwd());
+        const latest = await checkLatestGitHubRelease();
+        if (latest && isNewerVersion(currentVer, latest.version)) {
+          const isOffline = mc.phase === "stopped" || mc.phase === "error";
+          const isIdle15Min = mc.phase === "running" && mc.onlinePlayers.size === 0 && now - idleSince >= IDLE_REQUIRED_MS;
+          if (isOffline || isIdle15Min) {
+            const wasRunning = mc.phase === "running";
+            console.log(
+              wasRunning
+                ? `[Auto-Update] Neue Version v${latest.version} verfügbar & seit 15 Min. keine Spieler online. Stoppe Server kurz für Update …`
+                : `[Auto-Update] Neue Version v${latest.version} verfügbar (Server offline). Aktualisiere automatisch …`
+            );
+            if (wasRunning) {
+              state.autoResumeAfterUpdate = true;
+              await saveState(state);
+              await mc.stop();
+            }
+            const url = platform() === "win32" ? latest.windowsUrl : latest.linuxUrl;
+            const applied = await downloadAndApplyHostUpdate(process.cwd(), url, latest.version);
+            if (applied) {
+              console.log("[Auto-Update] Starte Host-Daemon neu …");
+              process.exit(UPDATE_RESTART_EXIT_CODE);
+            } else if (wasRunning) {
+              state.autoResumeAfterUpdate = false;
+              await saveState(state);
+              await mc.start({
+                serverDir: SERVER_DIR,
+                dataDir: DATA_DIR,
+                mcVersion: state.version,
+                minRamMb: Math.max(512, Math.round(state.memory * 0.5)),
+                maxRamMb: state.memory,
+                useAikarsFlags: true,
+                port: state.port,
+              });
+            }
+          }
+        }
+      }
+
       const snapshot = {
         phase: mc.phase,
         configured: state.configured,
+        onlinePlayers: mc.onlinePlayers.size,
         model: hostModelName(),
         managementVersion: 12,
         profileId: "default",

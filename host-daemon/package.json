@@ -1,0 +1,14 @@
+{
+  "name": "@minehost/host-daemon",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Cross-Platform MineHost Local Server Daemon (Windows, Linux/Ubuntu, macOS) with Portable Adoptium Java Manager & Multi-Engine Support",
+  "main": "src/index.ts",
+  "scripts": {
+    "start": "node --experimental-strip-types src/index.ts"
+  },
+  "engines": {
+    "node": ">=22.0.0"
+  }
+}

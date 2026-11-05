@@ -55,14 +55,43 @@ export async function resolveServerJar(
     case "velocity":
     case "waterfall": {
       let targetVer = mcVersion;
+      // Try official modern PaperMC Fill v3 API first
+      try {
+        const vData = await fetchJson(`https://fill.papermc.io/v3/projects/${software}/versions/${targetVer}`);
+        const builds: number[] = vData.builds || [];
+        const latestBuild = builds[0]; // v3 lists latest builds first
+        if (latestBuild) {
+          const bData = await fetchJson(`https://fill.papermc.io/v3/projects/${software}/versions/${targetVer}/builds/${latestBuild}`);
+          const downloadObj = bData.downloads?.["server:default"] || Object.values(bData.downloads || {})[0] as any;
+          if (downloadObj?.url) {
+            return {
+              url: downloadObj.url,
+              sha256: downloadObj.checksums?.sha256,
+              build: latestBuild,
+              resolvedVersion: targetVer,
+            };
+          }
+        }
+      } catch {}
+
+      // Fallback to v2 API or version discovery if needed
       let vData: any;
       try {
         vData = await fetchJson(`https://api.papermc.io/v2/projects/${software}/versions/${targetVer}/builds`);
       } catch {
-        const proj = await fetchJson(`https://api.papermc.io/v2/projects/${software}`);
-        const versions: string[] = proj.versions || [];
-        targetVer = versions[versions.length - 1] || "1.21.4";
-        vData = await fetchJson(`https://api.papermc.io/v2/projects/${software}/versions/${targetVer}/builds`);
+        const proj = await fetchJson(`https://fill.papermc.io/v3/projects/${software}`);
+        const allVers = Object.values(proj.versions || {}).flat() as string[];
+        targetVer = allVers[0] || "1.21.4";
+        const vInfo = await fetchJson(`https://fill.papermc.io/v3/projects/${software}/versions/${targetVer}`);
+        const latestBuild = (vInfo.builds || [])[0];
+        const bData = await fetchJson(`https://fill.papermc.io/v3/projects/${software}/versions/${targetVer}/builds/${latestBuild}`);
+        const downloadObj = bData.downloads?.["server:default"] || Object.values(bData.downloads || {})[0] as any;
+        return {
+          url: downloadObj.url,
+          sha256: downloadObj.checksums?.sha256,
+          build: latestBuild,
+          resolvedVersion: targetVer,
+        };
       }
       const builds = vData.builds || [];
       const latest = builds[builds.length - 1];

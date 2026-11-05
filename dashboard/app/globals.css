@@ -607,3 +607,125 @@ tbody tr:hover {
   display: grid;
   gap: 8px;
 }
+
+/* Complete Emerald Obsidian Theme Coverage for All Dialogs, Sub-Panels & Controls */
+input[type="checkbox"] {
+  accent-color: #24dc8e !important;
+}
+button:focus-visible, a:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid #24dc8e !important;
+  outline-offset: 2px;
+}
+.avatar {
+  background: linear-gradient(135deg, rgba(36, 220, 142, 0.25), rgba(16, 185, 129, 0.14)) !important;
+  border: 1px solid rgba(52, 211, 153, 0.48) !important;
+  color: #ecfdf5 !important;
+}
+.server-management-dialog {
+  background: linear-gradient(180deg, rgba(10, 22, 17, 0.97), rgba(6, 14, 11, 0.99)) !important;
+  border: 1px solid rgba(52, 211, 153, 0.34) !important;
+  border-radius: 18px !important;
+  color: #edf8f2 !important;
+  box-shadow: 0 28px 80px -16px rgba(0, 0, 0, 0.92), 0 0 40px -16px rgba(36, 220, 142, 0.22) !important;
+}
+.server-management-dialog::backdrop {
+  background: rgba(3, 8, 6, 0.76) !important;
+  backdrop-filter: blur(6px) !important;
+}
+.server-management-dialog .manager-card {
+  background: rgba(8, 18, 14, 0.84) !important;
+  border: 1px solid rgba(52, 211, 153, 0.22) !important;
+  border-radius: 12px !important;
+}
+.server-manager-gear {
+  background: rgba(11, 24, 19, 0.9) !important;
+  border: 1px solid rgba(52, 211, 153, 0.28) !important;
+  color: #a7f3d0 !important;
+}
+.server-manager-gear:hover:not(:disabled) {
+  background: rgba(20, 43, 33, 0.95) !important;
+  border-color: rgba(52, 211, 153, 0.55) !important;
+}
+.working, .toast {
+  background: rgba(8, 20, 15, 0.94) !important;
+  border: 1px solid rgba(52, 211, 153, 0.38) !important;
+  color: #d1fae5 !important;
+  box-shadow: 0 16px 44px -10px rgba(0, 0, 0, 0.85), 0 0 24px -8px rgba(36, 220, 142, 0.28) !important;
+}
+.file-path, .public-address {
+  background: rgba(6, 14, 11, 0.88) !important;
+  border: 1px solid rgba(52, 211, 153, 0.22) !important;
+  color: #d1fae5 !important;
+  border-radius: 10px !important;
+}
+.file-path code {
+  color: #6ee7b7 !important;
+}
+.file-name {
+  color: #e6f7ef !important;
+}
+.file-name > svg, td > svg {
+  color: #34d399 !important;
+}
+.send-command {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(52, 211, 153, 0.38) !important;
+  color: #6ee7b7 !important;
+  border-radius: 7px !important;
+  font-weight: 600 !important;
+}
+.send-command:hover:not(:disabled) {
+  background: rgba(16, 185, 129, 0.3) !important;
+  color: #ecfdf5 !important;
+}
+.nav-item b {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(52, 211, 153, 0.35) !important;
+  color: #6ee7b7 !important;
+}
+.icon-fallback, .player-avatar {
+  background: rgba(16, 185, 129, 0.18) !important;
+  border: 1px solid rgba(52, 211, 153, 0.32) !important;
+  color: #6ee7b7 !important;
+}
+.pumpkin-results li {
+  background: rgba(8, 19, 15, 0.84) !important;
+  border: 1px solid rgba(52, 211, 153, 0.2) !important;
+  border-radius: 12px !important;
+}
+.pumpkin-results a, .catalog-copy a {
+  color: #6ee7b7 !important;
+}
+.catalog-entry, .player-row, .toggle-row {
+  border-color: rgba(52, 211, 153, 0.16) !important;
+}
+.bedrock-options {
+  border-color: rgba(52, 211, 153, 0.22) !important;
+  background: rgba(7, 16, 12, 0.65) !important;
+  border-radius: 12px !important;
+}
+.setup-guide {
+  border-color: rgba(52, 211, 153, 0.38) !important;
+}
+.setup-guide > .panel {
+  background: rgba(8, 19, 15, 0.88) !important;
+}
+.setup-guide .toolbar {
+  background: rgba(7, 15, 12, 0.94) !important;
+  border-top-color: rgba(52, 211, 153, 0.22) !important;
+  backdrop-filter: blur(12px);
+}
+.language-menu select {
+  background: rgba(8, 18, 14, 0.9) !important;
+  border-color: rgba(52, 211, 153, 0.26) !important;
+  color: #e6f7ef !important;
+}
+.drop-active {
+  border-color: #24dc8e !important;
+  box-shadow: 0 0 0 3px rgba(36, 220, 142, 0.24) !important;
+}
+.drop-hint {
+  background: rgba(6, 18, 13, 0.92) !important;
+  border-color: #34d399 !important;
+  color: #a7f3d0 !important;
+}

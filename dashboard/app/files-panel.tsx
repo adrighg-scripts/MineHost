@@ -171,8 +171,13 @@ export default function FilesPanel({ serverId, online, active, canWrite, index, 
     useEffect(() => {
         warm(index);
         const current = currentPath.current;
-        if (online && visible) void load(current);
-    }, [online, visible]);
+        if (online) void load(current);
+    }, [online]);
+    useEffect(() => {
+        if (visible && online && !listing.length && !loading) {
+            void load(currentPath.current);
+        }
+    }, [visible, online]);
     useEffect(() => {
         if (folder !== currentPath.current)
             void load(folder);

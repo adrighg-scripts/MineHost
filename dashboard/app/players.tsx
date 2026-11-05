@@ -33,7 +33,12 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
             try {
                 if (online && document.visibilityState !== "hidden") {
                     const value = await latest.current("players_get");
-                    if (!stopped) setPlayers(value);
+                    if (!stopped && value) {
+                        setPlayers(value);
+                        if (Array.isArray(value.online) && value.online.length > 0) {
+                            setSelected(prev => prev && value.online.includes(prev) ? prev : value.online[0]);
+                        }
+                    }
                 }
             } catch (e) {
                 if (!stopped) setMessage(t(e instanceof Error ? e.message : "Spielerliste nicht verfügbar."));

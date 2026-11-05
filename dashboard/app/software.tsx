@@ -26,10 +26,13 @@ function compareMcVersions(a?: string, b?: string): number {
 }
 
 const LEGACY_VERSIONS = [
+    "1.21.4", "1.21.3", "1.21.1", "1.21", "1.20.6",
     "1.20.4", "1.20.2", "1.20.1", "1.19.4", "1.19.2", "1.18.2", "1.17.1",
     "1.16.5", "1.15.2", "1.14.4", "1.13.2", "1.12.2", "1.11.2", "1.10.2",
     "1.9.4", "1.8.9", "1.7.10", "1.6.4", "1.5.2", "1.4.7", "1.3.2", "1.2.5", "1.1", "1.0"
 ];
+
+const INITIAL_CATALOG = LEGACY_VERSIONS.map(v => ({ version: v, paper: true, fabric: true, vanilla: true, pumpkin: v === "1.21.4" }));
 
 export default function SoftwarePanel({ online, active, supported, current, configured, owner, run }: {
     online: boolean;
@@ -45,14 +48,14 @@ export default function SoftwarePanel({ online, active, supported, current, conf
     run: (kind: string, payload?: any) => Promise<any>;
 }) {
     const { t, locale } = useLanguage();
-    const [versions, setVersions] = useState<any[]>([]), [software, setSoftware] = useState("paper"), [version, setVersion] = useState(""), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [accepted, setAccepted] = useState(false);
+    const [versions, setVersions] = useState<any[]>(INITIAL_CATALOG), [software, setSoftware] = useState(current?.software || "paper"), [version, setVersion] = useState(current?.version || "1.21.4"), [busy, setBusy] = useState(false), [message, setMessage] = useState(""), [accepted, setAccepted] = useState(false);
     const [compatChecking, setCompatChecking] = useState(false);
     const [compatResult, setCompatResult] = useState<{ ready: { id: string; name: string }[]; missing: string[] } | null>(null);
 
     useEffect(() => {
         try {
             const cached = JSON.parse(sessionStorage.getItem("minehost-software-catalog") || "[]");
-            if (Array.isArray(cached)) setVersions(cached);
+            if (Array.isArray(cached) && cached.length) setVersions(cached);
         } catch {}
     }, []);
 

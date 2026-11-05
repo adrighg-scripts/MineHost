@@ -419,7 +419,7 @@ const current = servers.find(server => server.id === serverId);
       <div className="page-heading"><div><div className="breadcrumb">{t("Mein Server ")}<ChevronRight size={13}/> {t(selected.title)}</div><h1>{guide?(locale==="de"?"Einrichtung":"Setup"):t(selected.title)}</h1></div>
         {!guide&&can("power") && <div className="server-actions"><button className="btn btn-blue" disabled={!online || active || pending > 0} onClick={() => perform("start")}><Play size={16} fill="currentColor"/>{t("Start")}</button><button className="btn btn-outline" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}><RotateCw size={16}/>{t("Neustart")}</button><button className="btn btn-red" disabled={!online || !["starting", "running"].includes(phone?.phase ?? "") || pending > 0} onClick={() => perform("stop")}><Square size={14} fill="currentColor"/>{t("Stopp")}</button></div>}
       </div>
-      {guide&&owner&&<SetupGuide phone={phone} owner={owner} run={job} navigate={navigate} close={closeGuide}/>}
+      {guide&&owner&&<SetupGuide phone={phone} initialSettings={settings} owner={owner} run={job} navigate={navigate} close={closeGuide}/>}
       {!guide&&<>
       <section className="metrics" aria-label={t("Serverstatus")}>
         <div className="metric"><span>{t("Server")}</span><strong>{phone?.profileName || t("Mein Minecraft-Server")}</strong></div>

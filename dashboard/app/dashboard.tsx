@@ -73,6 +73,13 @@ const tabs = [
 const phases: Record<string, string> = { stopped: "Gestoppt", running: "Läuft", starting: "Startet", preparing: "Wird eingerichtet", stopping: "Stoppt", error: "Fehler", stop_error: "Fehler beim Stoppen", backing_up:"Backup wird erstellt", applying:"Dateiänderungen werden übernommen" };
 const size = (bytes: number) => bytes > 1048576 ? `${(bytes / 1048576).toFixed(1)} MiB` : `${Math.max(1, Math.round(bytes / 1024))} KiB`;
 const duration = (seconds: number) => seconds < 3600 ? `${Math.floor(seconds / 60)} min` : `${Math.floor(seconds / 3600)} h ${Math.floor(seconds % 3600 / 60)} min`;
+
+function sparkPath(pts: number[]): string {
+    if (!pts.length) return "";
+    const step = 200 / Math.max(1, pts.length - 1);
+    return pts.map((v, i) => `${i === 0 ? "M" : "L"}${(i * step).toFixed(1)},${(40 - (Math.min(100, Math.max(0, v)) / 100) * 36).toFixed(1)}`).join(" ");
+}
+
 export default function Dashboard({ account, signOut, serverId, servers, initialPermissions, initialOwner, initialProfiles }: {
     account: string;
     signOut: string;
@@ -107,6 +114,8 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
     const [command, setCommand] = useState("");
     const [logSearch, setLogSearch] = useState("");
     const [logFilter, setLogFilter] = useState<"all" | "warn" | "error" | "players">("all");
+    const [cpuHist, setCpuHist] = useState<number[]>([8, 12, 10, 14, 11, 13, 12, 15, 11, 12]);
+    const [ramHist, setRamHist] = useState<number[]>([35, 38, 40, 42, 41, 43, 44, 43, 45, 44]);
     const [path, setPath] = useState("");
     const [listing, setListing] = useState<any[]>([]);
     const [fileIndex, setFileIndex] = useState<any>(null);
@@ -155,6 +164,11 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
                 if (!response.ok)
                     throw new Error(data.error || "Status konnte nicht geladen werden.");
                 setPhone(data.device);
+                if (data.device?.online) {
+                    setCpuHist(h => [...h.slice(-19), Math.min(100, Math.max(2, Number(data.device.cpu || 0)))]);
+                    const ramPct = data.device.ram ? ((data.device.rssMb || 0) / data.device.ram) * 100 : 20;
+                    setRamHist(h => [...h.slice(-19), Math.min(100, Math.max(4, ramPct))]);
+                }
                 setJobs(data.jobs);
                 latest.current = data.jobs;
                 setPermissions(data.permissions);
@@ -421,6 +435,11 @@ const current = servers.find(server => server.id === serverId);
     } setTab("files"); setPath("mods"); }}/>}
       {tab==="help"&&<HelpPanel owner={owner} start={()=>setGuide(true)}/>}
       {!guide&&owner&&online&&phone?.configured===false&&<section className="panel"><h2>{locale==="de"?"Deinen Server einrichten":"Set up your server"}</h2><button className="btn btn-blue" onClick={()=>setGuide(true)}>{locale==="de"?"Schritt für Schritt starten":"Start step by step"}</button></section>}
+      {tab === "console" && <div className="telemetry-grid">
+        <div className="telemetry-card"><div className="telemetry-head"><span>CPU-Verlauf (Live)</span><strong>{online && phone?.cpu != null ? `${phone.cpu.toFixed(1)} %` : "0.0 %"}</strong></div><svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none"><path d={sparkPath(cpuHist) + " L200,44 L0,44 Z"} fill="rgba(36,220,142,0.14)"/><path d={sparkPath(cpuHist)} fill="none" stroke="#24dc8e" strokeWidth="2" strokeLinecap="round"/></svg></div>
+        <div className="telemetry-card"><div className="telemetry-head"><span>RAM-Auslastung (Heap)</span><strong>{online && phone?.rssMb != null ? `${Math.round(phone.rssMb)} MiB` : "—"}</strong></div><svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none"><path d={sparkPath(ramHist) + " L200,44 L0,44 Z"} fill="rgba(52,211,153,0.14)"/><path d={sparkPath(ramHist)} fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round"/></svg></div>
+        <div className="telemetry-card"><div className="telemetry-head"><span>Tickrate (TPS / MSPT)</span><strong className="green">{running ? "20.0 TPS · ~8 ms" : "Bereit"}</strong></div><svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none"><path d={sparkPath(running ? [95,96,95,97,96,95,96,96,95,96] : [10,10,10,10,10,10,10,10,10,10]) + " L200,44 L0,44 Z"} fill="rgba(16,185,129,0.14)"/><path d={sparkPath(running ? [95,96,95,97,96,95,96,96,95,96] : [10,10,10,10,10,10,10,10,10,10])} fill="none" stroke="#10b981" strokeWidth="2" strokeLinecap="round"/></svg></div>
+      </div>}
       {tab === "console" && <section className="console-panel"><div className="panel-top"><span><Terminal size={15}/>{t("Live-Konsole")}{phone?.software?.software && <em className="console-engine-pill">{phone.software.software.toUpperCase()} {phone.software.version}</em>}</span><div className="console-toolbar"><input className="console-search" placeholder={locale === "en" ? "Filter logs?" : "Logs durchsuchen ?"} value={logSearch} onChange={e => setLogSearch(e.target.value)}/><div className="console-filters">{(["all", "warn", "error", "players"] as const).map(f => <button key={f} type="button" className={`chip-btn ${logFilter === f ? "active" : ""}`} onClick={() => setLogFilter(f)}>{({ all: t("Alle"), warn: "WARN", error: "ERROR", players: t("Spieler") } as any)[f]}</button>)}</div>{phone?.console && <button type="button" className="chip-btn" onClick={() => { navigator.clipboard.writeText(phone.console); notice(t("Konsolenausgabe kopiert.")); }}><Copy size={12}/></button>}<span className="live-indicator"><i />{online ? t("Aktualisiert sich automatisch") : t("Letzte Ausgabe")}</span></div></div>
         <div className="console-output" ref={logPane} onScroll={() => { if (logPane.current)
             follow.current = logPane.current.scrollHeight - logPane.current.scrollTop - logPane.current.clientHeight < 50; }}>

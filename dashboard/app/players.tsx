@@ -2,7 +2,7 @@
 import Inventory from "./inventory";
 import { useLanguage } from "./language";
 import { useEffect, useRef, useState } from "react";
-import { Shield, Heart, Zap, UserMinus, Ban } from "lucide-react";
+import { Shield, Heart, Zap, UserMinus, Ban, RotateCcw } from "lucide-react";
 
 function PlayerAvatar({ name, size = 24 }: { name: string; size?: number }) {
     const clean = name.replace(/^\./, "");
@@ -24,7 +24,7 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
     run: (kind: string, payload?: any) => Promise<any>;
 }) {
     const { t } = useLanguage();
-    const [players, setPlayers] = useState<any>({ online: [], whitelist: [] }), [selected, setSelected] = useState(""), [detail, setDetail] = useState<any>(null), [message, setMessage] = useState(""), [name, setName] = useState(""), [command, setCommand] = useState(""), [action, setAction] = useState("kick"), [busy, setBusy] = useState(false);
+    const [players, setPlayers] = useState<any>({ online: [], whitelist: [] }), [selected, setSelected] = useState(""), [detail, setDetail] = useState<any>(null), [message, setMessage] = useState(""), [name, setName] = useState(""), [pardonName, setPardonName] = useState(""), [command, setCommand] = useState(""), [action, setAction] = useState("kick"), [busy, setBusy] = useState(false);
     const latest = useRef(run);
     latest.current = run;
     useEffect(() => {
@@ -98,6 +98,7 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
                 <button type="button" className="btn btn-outline compact" disabled={!running || busy} onClick={() => void perform("player_action", { name: selected, action: "survival", command: "" })}>{t("Survival")}</button>
                 <button type="button" className="btn btn-outline compact" disabled={!running || busy} onClick={() => void perform("player_action", { name: selected, action: "kick", command: "" })}><UserMinus size={14}/>{t("Kicken")}</button>
                 <button type="button" className="btn btn-red compact" disabled={!running || busy} onClick={() => { if (confirm(t(`ban für ${selected} ausführen?`))) void perform("player_action", { name: selected, action: "ban", command: "" }); }}><Ban size={14}/>{t("Bannen")}</button>
+                <button type="button" className="btn btn-outline compact" disabled={!running || busy} onClick={() => void perform("console", { command: `pardon ${selected}` })}><RotateCcw size={14}/>Pardon (Entbannen)</button>
             </div>}
             {detail ? <>
                 <div className="settings-grid">
@@ -130,5 +131,12 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
                 <button className="btn btn-outline compact" disabled={!running || busy} onClick={() => perform("whitelist_remove", { name: player })}>{t("Entfernen")}</button>
             </div>)}
         </details>
+        {canCommand && <details><summary>Gebannte Spieler entbannen (Pardon)</summary>
+            <p>Gib den Namen eines gebannten Spielers ein, um die Sperre (Ban) aufzuheben:</p>
+            <form className="inline-form" onSubmit={e => { e.preventDefault(); if (!pardonName.trim()) return; void perform("console", { command: `pardon ${pardonName.trim()}` }); setPardonName(""); }}>
+                <input value={pardonName} onChange={e => setPardonName(e.target.value)} placeholder="Spielername zum Entbannen" required/>
+                <button className="btn btn-outline" disabled={!running || busy}><RotateCcw size={14}/>Pardon ausführen</button>
+            </form>
+        </details>}
     </section>;
 }

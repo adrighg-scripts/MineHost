@@ -361,3 +361,249 @@ tbody tr:hover {
   color: #34d399;
   word-break: break-all;
 }
+
+
+/* ==========================================================================
+   SHOWCASE EMERALD OBSIDIAN DESIGN SYSTEM (Unified with GitHub Pages Showcase)
+   ========================================================================== */
+:root {
+  color: #edf8f2;
+  background: #050a08;
+}
+body, .app-shell {
+  background-color: #050a08;
+  background-image:
+    radial-gradient(ellipse 70% 50% at 75% -10%, rgba(36, 220, 142, 0.14), transparent 65%),
+    radial-gradient(ellipse 55% 45% at 15% 105%, rgba(16, 185, 129, 0.1), transparent 65%),
+    radial-gradient(rgba(162, 232, 198, 0.065) 1px, transparent 1px);
+  background-size: 100% 100%, 100% 100%, 28px 28px;
+  background-attachment: fixed;
+}
+.topbar {
+  background: rgba(6, 13, 10, 0.84) !important;
+  backdrop-filter: blur(20px) saturate(150%) !important;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.18) !important;
+  box-shadow: 0 10px 34px -14px rgba(0, 0, 0, 0.8) !important;
+}
+.brand-mark {
+  background: linear-gradient(135deg, rgba(36, 220, 142, 0.25), rgba(16, 185, 129, 0.12)) !important;
+  border: 1.5px solid rgba(52, 211, 153, 0.65) !important;
+  color: #34d399 !important;
+  box-shadow: 0 0 20px -4px rgba(36, 220, 142, 0.45) !important;
+}
+.brand small {
+  color: #5eead4 !important;
+}
+.sidebar {
+  background: linear-gradient(180deg, rgba(7, 15, 12, 0.95) 0%, rgba(4, 9, 7, 0.98) 100%) !important;
+  border-right: 1px solid rgba(52, 211, 153, 0.16) !important;
+}
+.server-switch, .sidebar-bottom {
+  border-color: rgba(52, 211, 153, 0.14) !important;
+}
+.nav-caption {
+  color: #5e8775 !important;
+}
+.nav-item {
+  color: #a3c2b3 !important;
+  border-radius: 10px !important;
+}
+.nav-item > svg {
+  color: #638c79 !important;
+}
+.nav-item:hover {
+  background: rgba(20, 41, 32, 0.65) !important;
+  color: #ecfdf5 !important;
+}
+.nav-item.selected {
+  background: linear-gradient(90deg, rgba(36, 220, 142, 0.2), rgba(16, 40, 30, 0.55)) !important;
+  border-color: rgba(52, 211, 153, 0.3) !important;
+  color: #4ade80 !important;
+  box-shadow: inset 3px 0 0 #24dc8e, 0 8px 20px -12px rgba(36, 220, 142, 0.5) !important;
+}
+.nav-item.selected > svg {
+  color: #24dc8e !important;
+}
+.workspace {
+  background: transparent !important;
+}
+.metric {
+  background: linear-gradient(180deg, rgba(12, 24, 19, 0.88), rgba(8, 17, 13, 0.92)) !important;
+  border: 1px solid rgba(52, 211, 153, 0.18) !important;
+  border-radius: 14px !important;
+  box-shadow: 0 14px 32px -18px rgba(0, 0, 0, 0.8), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+.metric:hover {
+  border-color: rgba(52, 211, 153, 0.42) !important;
+  box-shadow: 0 16px 36px -14px rgba(0, 0, 0, 0.85), 0 0 24px -10px rgba(36, 220, 142, 0.22) !important;
+}
+.panel {
+  background: linear-gradient(180deg, rgba(11, 22, 18, 0.9), rgba(7, 15, 12, 0.94)) !important;
+  border: 1px solid rgba(52, 211, 153, 0.2) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 22px 50px -24px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255, 255, 255, 0.05) !important;
+}
+.console-panel {
+  background: rgba(6, 13, 10, 0.95) !important;
+  border: 1px solid rgba(52, 211, 153, 0.24) !important;
+  border-radius: 16px !important;
+  box-shadow: 0 24px 56px -24px rgba(0, 0, 0, 0.9), 0 0 35px -18px rgba(36, 220, 142, 0.18) !important;
+}
+.panel-top {
+  background: linear-gradient(180deg, rgba(13, 27, 21, 0.95), rgba(9, 19, 15, 0.95)) !important;
+  border-bottom: 1px solid rgba(52, 211, 153, 0.18) !important;
+}
+.command-bar {
+  background: rgba(5, 11, 9, 0.96) !important;
+  border-top: 1px solid rgba(52, 211, 153, 0.2) !important;
+}
+.command-bar:focus-within {
+  border-top-color: #24dc8e !important;
+  box-shadow: inset 0 1px 0 rgba(36, 220, 142, 0.35) !important;
+}
+.btn-blue {
+  background: linear-gradient(180deg, #24dc8e 0%, #10b981 100%) !important;
+  border-color: #34d399 !important;
+  color: #04160e !important;
+  font-weight: 700 !important;
+  box-shadow: 0 8px 22px -6px rgba(16, 185, 129, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
+}
+.btn-blue:hover:not(:disabled) {
+  background: linear-gradient(180deg, #34e89c 0%, #14c98b 100%) !important;
+  box-shadow: 0 12px 26px -6px rgba(36, 220, 142, 0.65), inset 0 1px 0 rgba(255, 255, 255, 0.45) !important;
+}
+.btn-outline {
+  background: rgba(13, 26, 21, 0.85) !important;
+  border-color: rgba(52, 211, 153, 0.24) !important;
+  color: #d5ece1 !important;
+}
+.btn-outline:hover:not(:disabled) {
+  background: rgba(20, 41, 32, 0.95) !important;
+  border-color: rgba(52, 211, 153, 0.48) !important;
+  color: #ffffff !important;
+}
+input, textarea, select {
+  background: rgba(7, 15, 12, 0.9) !important;
+  border-color: rgba(52, 211, 153, 0.22) !important;
+  color: #eefaf4 !important;
+  border-radius: 9px !important;
+}
+input:focus, textarea:focus, select:focus {
+  border-color: #24dc8e !important;
+  box-shadow: 0 0 0 3px rgba(36, 220, 142, 0.16) !important;
+  outline: none !important;
+}
+.notice, .offline-note {
+  background: rgba(12, 31, 24, 0.82) !important;
+  border-color: rgba(52, 211, 153, 0.28) !important;
+  color: #b4e4cb !important;
+  border-radius: 12px !important;
+}
+.error-note {
+  background: rgba(45, 16, 24, 0.88) !important;
+  border-color: rgba(244, 63, 94, 0.4) !important;
+  color: #fecdd3 !important;
+}
+th {
+  background: rgba(13, 27, 21, 0.9) !important;
+  border-bottom-color: rgba(52, 211, 153, 0.2) !important;
+  color: #8ab09d !important;
+}
+td {
+  border-bottom-color: rgba(52, 211, 153, 0.1) !important;
+}
+tbody tr:hover {
+  background: rgba(20, 43, 33, 0.38) !important;
+}
+
+/* Live Telemetry Graphs (CPU / RAM / TPS Sparklines) */
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 20px;
+}
+@media (max-width: 900px) {
+  .telemetry-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.telemetry-card {
+  background: linear-gradient(180deg, rgba(11, 23, 18, 0.88), rgba(7, 15, 12, 0.92));
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  border-radius: 14px;
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.telemetry-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-size: 12px;
+  color: #93b5a4;
+}
+.telemetry-head strong {
+  font-size: 16px;
+  font-weight: 700;
+  color: #ecfdf5;
+}
+.sparkline-svg {
+  width: 100%;
+  height: 44px;
+  overflow: visible;
+}
+
+/* Config Editor Syntax Validator & Tools */
+.config-validator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 999px;
+}
+.config-validator.valid {
+  background: rgba(16, 185, 129, 0.16);
+  color: #34d399;
+  border: 1px solid rgba(52, 211, 153, 0.35);
+}
+.config-validator.invalid {
+  background: rgba(239, 68, 68, 0.18);
+  color: #fca5a5;
+  border: 1px solid rgba(239, 68, 68, 0.4);
+}
+.quick-files-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+/* RAM Slider & Aikar's Flags Card */
+.ram-slider-card {
+  padding: 16px;
+  border-radius: 12px;
+  background: rgba(8, 18, 14, 0.78);
+  border: 1px solid rgba(52, 211, 153, 0.2);
+  margin-bottom: 18px;
+}
+.ram-slider-card input[type="range"] {
+  width: 100%;
+  accent-color: #24dc8e;
+  padding: 0 !important;
+  height: 8px;
+  cursor: pointer;
+}
+.compat-report {
+  margin: 14px 0;
+  padding: 14px 16px;
+  border-radius: 12px;
+  background: rgba(8, 19, 15, 0.85);
+  border: 1px solid rgba(52, 211, 153, 0.25);
+  display: grid;
+  gap: 8px;
+}

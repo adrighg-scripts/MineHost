@@ -115,6 +115,22 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
     const [logSearch, setLogSearch] = useState("");
     const [logFilter, setLogFilter] = useState<"all" | "warn" | "error" | "players">("all");
     const [cpuHist, setCpuHist] = useState<number[]>([8, 12, 10, 14, 11, 13, 12, 15, 11, 12]);
+    const [otherServers, setOtherServers] = useState<any[]>([]);
+    useEffect(() => {
+        let timer: any;
+        async function fetchAll() {
+            try {
+                const res = await fetch("/api/servers");
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data?.servers) setOtherServers(data.servers);
+                }
+            } catch {}
+        }
+        void fetchAll();
+        timer = setInterval(fetchAll, 4000);
+        return () => clearInterval(timer);
+    }, []);
     const [ramHist, setRamHist] = useState<number[]>([35, 38, 40, 42, 41, 43, 44, 43, 45, 44]);
     const [path, setPath] = useState("");
     const [listing, setListing] = useState<any[]>([]);
@@ -417,7 +433,7 @@ const current = servers.find(server => server.id === serverId);
     </aside>
     <main className="workspace">
       <div className="page-heading"><div><div className="breadcrumb">{t("Mein Server ")}<ChevronRight size={13}/> {t(selected.title)}</div><h1>{guide?(locale==="de"?"Einrichtung":"Setup"):t(selected.title)}</h1></div>
-        {!guide&&can("power") && <div className="server-actions"><button className="btn btn-blue" disabled={!online || active || pending > 0} onClick={() => perform("start")}><Play size={16} fill="currentColor"/>{t("Start")}</button><button className="btn btn-outline" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}><RotateCw size={16}/>{t("Neustart")}</button><button className="btn btn-red" disabled={!online || !["starting", "running"].includes(phone?.phase ?? "") || pending > 0} onClick={() => perform("stop")}><Square size={14} fill="currentColor"/>{t("Stopp")}</button></div>}
+        {!guide&&tab!=="overview"&&can("power") && <div className="server-actions"><button className="btn btn-blue" disabled={!online || active || pending > 0} onClick={() => perform("start")}><Play size={16} fill="currentColor"/>{t("Start")}</button><button className="btn btn-outline" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}><RotateCw size={16}/>{t("Neustart")}</button><button className="btn btn-red" disabled={!online || !["starting", "running"].includes(phone?.phase ?? "") || pending > 0} onClick={() => perform("stop")}><Square size={14} fill="currentColor"/>{t("Stopp")}</button></div>}
       </div>
       {guide&&owner&&<SetupGuide phone={phone} initialSettings={settings} owner={owner} run={job} navigate={navigate} close={closeGuide}/>}
       {!guide&&<>
@@ -454,14 +470,7 @@ const current = servers.find(server => server.id === serverId);
           <div className="section-heading">
             <div>
               <h2>{locale === "en" ? "Server Overview & Resource Lines" : "Alle Server & Live-Leistungsübersicht"}</h2>
-              <p className="muted">{locale === "en" ? "Real-time resource telemetry lines and one-click controls for all servers." : "Echtzeit-Leistungskurven, Status und Schnellsteuerung (Start/Stopp/Neustart) für deine Server."}</p>
-            </div>
-            <div style={{ display: "flex", gap: 8 }}>
-              {can("power") && <>
-                <button className="btn btn-blue compact" disabled={!online || active || pending > 0} onClick={() => perform("start")}><Play size={14} fill="currentColor"/>{t("Start")}</button>
-                <button className="btn btn-outline compact" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}><RotateCw size={14}/>{t("Neustart")}</button>
-                <button className="btn btn-red compact" disabled={!online || !["starting", "running"].includes(phone?.phase ?? "") || pending > 0} onClick={() => perform("stop")}><Square size={13} fill="currentColor"/>{t("Stopp")}</button>
-              </>}
+              <p className="muted">{locale === "en" ? "Real-time resource telemetry lines and one-click controls for all servers." : "Echtzeit-Leistungskurven, Status und direkte Steuerung für jeden einzelnen Server."}</p>
             </div>
           </div>
 
@@ -479,6 +488,19 @@ const current = servers.find(server => server.id === serverId);
                 <span className={`connection ${online && running ? "connected" : ""}`}>
                   <span />{online ? t(phases[phone?.phase ?? "stopped"]) : t("Offline")}
                 </span>
+              </div>
+
+              {/* Steuerungs-Buttons für diesen Server (nur erlaubte Aktionen klickbar) */}
+              <div style={{ display: "flex", gap: 8, margin: "14px 0" }}>
+                <button type="button" className="btn btn-blue compact" disabled={!online || active || pending > 0} onClick={() => perform("start")}>
+                  <Play size={13} fill="currentColor"/>{t("Start")}
+                </button>
+                <button type="button" className="btn btn-red compact" disabled={!online || !running || pending > 0} onClick={() => perform("stop")}>
+                  <Square size={12} fill="currentColor"/>{t("Stopp")}
+                </button>
+                <button type="button" className="btn btn-outline compact" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}>
+                  <RotateCw size={13}/>{t("Neustart")}
+                </button>
               </div>
 
               {/* Live Performance Sparklines */}
@@ -519,65 +541,109 @@ const current = servers.find(server => server.id === serverId);
               </div>
             </div>
 
-            {/* Übersicht aller verknüpften Server/Geräte */}
-            {servers.filter(s => s.id !== serverId).map(s => (
-              <div key={s.id} className="telemetry-card" style={{ padding: 18, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(11, 22, 18, 0.45)" }}>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
-                  <div>
-                    <strong style={{ fontSize: 16, color: "#ecfdf5", display: "flex", alignItems: "center", gap: 8 }}>
-                      <Smartphone size={18} color="#8fa89b"/>
-                      {s.model || s.name}
-                    </strong>
-                    <small style={{ color: "#8fa89b", fontSize: 12 }}>Host-ID: {s.id.slice(0, 8)}…</small>
+            {/* Übersicht aller anderen verknüpften Server/Geräte im selben Design mit Live-Kurven */}
+            {servers.filter(s => s.id !== serverId).map(s => {
+              const info = otherServers.find(item => item.id === s.id);
+              const sOnline = info ? info.online : s.online;
+              const sRunning = info?.phase === "running";
+              const sActive = ["running", "starting", "stopping", "preparing"].includes(info?.phase || "");
+              const sCpu = info?.cpu != null ? info.cpu : 0;
+              const sRss = info?.rssMb != null ? info.rssMb : 0;
+              const sRam = info?.ram || 2048;
+              const sAddr = info?.address || (sOnline ? "127.0.0.1:25565" : "");
+
+              return (
+                <div key={s.id} className="telemetry-card" style={{ padding: 18, border: "1px solid rgba(52, 211, 153, 0.28)", background: "rgba(11, 22, 18, 0.75)" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                    <div>
+                      <strong style={{ fontSize: 16, color: "#ecfdf5", display: "flex", alignItems: "center", gap: 8 }}>
+                        <Smartphone size={18} color="#24dc8e"/>
+                        {info?.profileName || info?.model || s.model || s.name}
+                      </strong>
+                      <small style={{ color: "#8fa89b", fontSize: 12 }}>{info?.software ? `${info.software.software.toUpperCase()} ${info.software.version}` : "Minecraft Java"}</small>
+                    </div>
+                    <span className={`connection ${sOnline && sRunning ? "connected" : ""}`}>
+                      <span />{sOnline ? (info?.phase ? t(phases[info.phase] || info.phase) : t("Verbunden")) : t("Offline")}
+                    </span>
                   </div>
-                  <span className={`connection ${s.online ? "connected" : ""}`}>
-                    <span />{s.online ? t("Verbunden") : t("Offline")}
-                  </span>
-                </div>
 
-                <div style={{ display: "flex", gap: 8, margin: "14px 0" }}>
-                  <button type="button" className="btn btn-blue compact" disabled={!s.online} onClick={async () => {
-                    try {
-                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ kind: "start", payload: {} })
-                      });
-                      if (res.ok) notice(`Start-Befehl an ${s.model || s.name} gesendet.`);
-                      else notice("Aktion fehlgeschlagen.");
-                    } catch { notice("Fehler beim Senden."); }
-                  }}><Play size={13} fill="currentColor"/>{t("Start")}</button>
-                  <button type="button" className="btn btn-red compact" disabled={!s.online} onClick={async () => {
-                    try {
-                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ kind: "stop", payload: {} })
-                      });
-                      if (res.ok) notice(`Stopp-Befehl an ${s.model || s.name} gesendet.`);
-                      else notice("Aktion fehlgeschlagen.");
-                    } catch { notice("Fehler beim Senden."); }
-                  }}><Square size={12} fill="currentColor"/>{t("Stopp")}</button>
-                  <button type="button" className="btn btn-outline compact" disabled={!s.online} onClick={async () => {
-                    try {
-                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
-                        method: "POST",
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify({ kind: "restart", payload: {} })
-                      });
-                      if (res.ok) notice(`Neustart-Befehl an ${s.model || s.name} gesendet.`);
-                      else notice("Aktion fehlgeschlagen.");
-                    } catch { notice("Fehler beim Senden."); }
-                  }}><RotateCw size={13}/>{t("Neustart")}</button>
-                </div>
+                  {/* Steuerungs-Buttons für diesen Server (korrekt aktiviert/deaktiviert nach Zustand) */}
+                  <div style={{ display: "flex", gap: 8, margin: "14px 0" }}>
+                    <button type="button" className="btn btn-blue compact" disabled={!sOnline || sActive} onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ kind: "start", payload: {} })
+                        });
+                        if (res.ok) notice(`Start-Befehl an ${s.model || s.name} gesendet.`);
+                        else notice("Aktion fehlgeschlagen.");
+                      } catch { notice("Fehler beim Senden."); }
+                    }}><Play size={13} fill="currentColor"/>{t("Start")}</button>
+                    <button type="button" className="btn btn-red compact" disabled={!sOnline || !sRunning} onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ kind: "stop", payload: {} })
+                        });
+                        if (res.ok) notice(`Stopp-Befehl an ${s.model || s.name} gesendet.`);
+                        else notice("Aktion fehlgeschlagen.");
+                      } catch { notice("Fehler beim Senden."); }
+                    }}><Square size={12} fill="currentColor"/>{t("Stopp")}</button>
+                    <button type="button" className="btn btn-outline compact" disabled={!sOnline || !sRunning} onClick={async () => {
+                      try {
+                        const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                          method: "POST",
+                          headers: { "Content-Type": "application/json" },
+                          body: JSON.stringify({ kind: "restart", payload: {} })
+                        });
+                        if (res.ok) notice(`Neustart-Befehl an ${s.model || s.name} gesendet.`);
+                        else notice("Aktion fehlgeschlagen.");
+                      } catch { notice("Fehler beim Senden."); }
+                    }}><RotateCw size={13}/>{t("Neustart")}</button>
+                  </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", flexWrap: "wrap", gap: 8 }}>
-                  <a href={`/?server=${encodeURIComponent(s.id)}`} className="btn btn-outline compact" style={{ textDecoration: "none" }}>
-                    Öffnen & Verwalten →
-                  </a>
+                  {/* Live Performance Sparklines im einheitlichen Stil */}
+                  <div style={{ display: "grid", gap: 12, marginTop: 8 }}>
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                        <span style={{ color: "#a7c7b7" }}>CPU-Auslastung:</span>
+                        <strong style={{ color: "#24dc8e" }}>{sOnline ? `${sCpu.toFixed(1)} %` : "0 %"}</strong>
+                      </div>
+                      <svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none" style={{ height: 38 }}>
+                        <path d={sparkPath(sRunning ? [10, 15, 12, 18, 14, 16, 15, 20, 14, Math.round(sCpu)] : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) + " L200,44 L0,44 Z"} fill="rgba(36,220,142,0.14)"/>
+                        <path d={sparkPath(sRunning ? [10, 15, 12, 18, 14, 16, 15, 20, 14, Math.round(sCpu)] : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])} fill="none" stroke="#24dc8e" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+
+                    <div>
+                      <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                        <span style={{ color: "#a7c7b7" }}>RAM-Verlauf (Heap):</span>
+                        <strong style={{ color: "#34d399" }}>{sOnline && sRss > 0 ? `${Math.round(sRss)} MiB / ${sRam} MiB` : "—"}</strong>
+                      </div>
+                      <svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none" style={{ height: 38 }}>
+                        <path d={sparkPath(sRunning ? [30, 32, 35, 33, 36, 38, 37, 39, 38, Math.min(100, Math.round((sRss/sRam)*100))] : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]) + " L200,44 L0,44 Z"} fill="rgba(52,211,153,0.14)"/>
+                        <path d={sparkPath(sRunning ? [30, 32, 35, 33, 36, 38, 37, 39, 38, Math.min(100, Math.round((sRss/sRam)*100))] : [0, 0, 0, 0, 0, 0, 0, 0, 0, 0])} fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round"/>
+                      </svg>
+                    </div>
+                  </div>
+
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 8 }}>
+                    <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      Spieladresse: <code style={{ color: "#ecfdf5" }}>{sAddr || "Nicht aktiv"}</code>
+                      {sAddr && <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
+                        navigator.clipboard.writeText(sAddr);
+                        notice(t("Spieladresse kopiert: ") + sAddr);
+                      }}><Copy size={13}/></button>}
+                    </span>
+                    <a href={`/?server=${encodeURIComponent(s.id)}`} className="btn btn-outline compact" style={{ textDecoration: "none" }}>
+                      Öffnen & Verwalten →
+                    </a>
+                  </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         </section>
       </div>

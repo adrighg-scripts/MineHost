@@ -506,8 +506,15 @@ const current = servers.find(server => server.id === serverId);
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12 }}>
-                <span style={{ color: "#8fa89b" }}>Spieladresse: <code style={{ color: "#ecfdf5" }}>{publicAddress || phone?.lan || "Nicht aktiv"}</code></span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 8 }}>
+                <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                  Spieladresse: <code style={{ color: "#ecfdf5" }}>{publicAddress || phone?.lan || "127.0.0.1:25565"}</code>
+                  <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
+                    const addr = publicAddress || phone?.lan || "127.0.0.1:25565";
+                    navigator.clipboard.writeText(addr);
+                    notice(t("Spieladresse kopiert: ") + addr);
+                  }}><Copy size={13}/></button>
+                </span>
                 <span style={{ color: "#34d399" }}>{phone?.onlinePlayers || 0} Spieler online</span>
               </div>
             </div>
@@ -528,13 +535,45 @@ const current = servers.find(server => server.id === serverId);
                   </span>
                 </div>
 
-                <div style={{ padding: "16px 0", color: "#8fa89b", fontSize: 13, textAlign: "center" }}>
-                  {s.online ? "Host ist bereit. Klicke unten, um zu diesem Server zu wechseln." : "Dieser Server-Host ist aktuell offline."}
+                <div style={{ display: "flex", gap: 8, margin: "14px 0" }}>
+                  <button type="button" className="btn btn-blue compact" disabled={!s.online} onClick={async () => {
+                    try {
+                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ kind: "start", payload: {} })
+                      });
+                      if (res.ok) notice(`Start-Befehl an ${s.model || s.name} gesendet.`);
+                      else notice("Aktion fehlgeschlagen.");
+                    } catch { notice("Fehler beim Senden."); }
+                  }}><Play size={13} fill="currentColor"/>{t("Start")}</button>
+                  <button type="button" className="btn btn-red compact" disabled={!s.online} onClick={async () => {
+                    try {
+                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ kind: "stop", payload: {} })
+                      });
+                      if (res.ok) notice(`Stopp-Befehl an ${s.model || s.name} gesendet.`);
+                      else notice("Aktion fehlgeschlagen.");
+                    } catch { notice("Fehler beim Senden."); }
+                  }}><Square size={12} fill="currentColor"/>{t("Stopp")}</button>
+                  <button type="button" className="btn btn-outline compact" disabled={!s.online} onClick={async () => {
+                    try {
+                      const res = await fetch(`/api/commands?server=${encodeURIComponent(s.id)}`, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({ kind: "restart", payload: {} })
+                      });
+                      if (res.ok) notice(`Neustart-Befehl an ${s.model || s.name} gesendet.`);
+                      else notice("Aktion fehlgeschlagen.");
+                    } catch { notice("Fehler beim Senden."); }
+                  }}><RotateCw size={13}/>{t("Neustart")}</button>
                 </div>
 
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", flexWrap: "wrap", gap: 8 }}>
                   <a href={`/?server=${encodeURIComponent(s.id)}`} className="btn btn-outline compact" style={{ textDecoration: "none" }}>
-                    Zu diesem Server wechseln →
+                    Öffnen & Verwalten →
                   </a>
                 </div>
               </div>

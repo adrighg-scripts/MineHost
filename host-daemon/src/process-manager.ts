@@ -141,3 +141,4 @@ export class MinecraftProcessManager extends EventEmitter {
     this.emit("log", line);
   }
 }
+

@@ -3,12 +3,12 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Turn an ARM64 Android phone into a full Minecraft Java server. Bundled OpenJDK 25, Paper, Fabric, Vanilla &amp; Pumpkin with browser control panel.">
+  <meta name="description" content="Cross-platform self-hosted Minecraft Java server for Android, Windows, Linux/Ubuntu &amp; iOS. Automatic Portable Java Manager, 16 Server Engines, Modrinth Store &amp; Live Web Control Panel.">
   <meta name="theme-color" content="#0b100c">
   <link rel="icon" href="./minehost.svg" type="image/svg+xml">
   <link rel="stylesheet" href="./site.css">
   <script src="./site.js" defer></script>
-  <title>MineHost — Pocket Hardware, Full Minecraft Server</title>
+  <title>MineHost — Cross-Platform Self-Hosted Minecraft Server Platform</title>
 </head>
 <body>
   <a class="skip-link" href="#main">Skip to content</a>
@@ -23,16 +23,16 @@
     <div class="shell header-inner">
       <a class="brand" href="./" aria-label="MineHost home">
         <span class="brand-badge"><img src="./minehost.svg" width="32" height="32" alt=""></span>
-        <span>MineHost <small>ANDROID SERVER STACK</small></span>
+        <span>MineHost <small>CROSS-PLATFORM SERVER STACK</small></span>
       </a>
       <nav aria-label="Main navigation">
         <a href="#showcase">Live Preview</a>
-        <a href="#setup">Setup</a>
-        <a href="#engines">Engines</a>
+        <a href="#setup">Platforms &amp; Setup</a>
+        <a href="#engines">16 Engines</a>
         <a href="#help">FAQ</a>
       </nav>
       <div class="header-cta">
-        <a class="header-release" href="https://github.com/adrighg-scripts/MineHost/releases/latest">v0.10.14</a>
+        <a class="header-release" href="https://github.com/adrighg-scripts/MineHost/releases/latest">v0.10.16</a>
         <a class="header-dashboard" href="https://minehost-dashboard.adrilolghg.workers.dev/">Open Dashboard <span aria-hidden="true">↗</span></a>
       </div>
     </div>
@@ -43,24 +43,32 @@
       <div class="hero-copy">
         <div class="eyebrow-pill">
           <span class="pulse-dot"></span>
-          <span>Self-Hosted Minecraft Server for ARM64 Android</span>
+          <span>Self-Hosted Minecraft Server · Android · Windows · Linux/Ubuntu · iOS</span>
         </div>
-        <h1 id="hero-title">Pocket hardware.<br><em>Real Minecraft server.</em></h1>
+        <h1 id="hero-title">Your hardware.<br><em>Real Minecraft server.</em></h1>
         <p class="hero-description">
-          Turn a spare Android phone into a dedicated 24/7 Minecraft server. MineHost bundles its own Java 25 &amp; native runtimes directly inside a single APK—controlled from a live browser dashboard.
+          Turn an Android phone, Windows PC, or Linux/Ubuntu server into a dedicated 24/7 Minecraft host—and control everything from anywhere via Web Browser or iOS Web-App. Automatic Portable Java Manager (Java 8–25) included.
         </p>
-        <div class="actions">
+        <div class="actions" style="flex-wrap:wrap;gap:10px">
           <a class="button primary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">
             <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v4h14v-4"/></svg>
-            Download APK
-            <span class="btn-badge">Free · No Root</span>
+            Android APK
+            <span class="btn-badge">ARM64</span>
           </a>
-          <a class="button secondary" href="#showcase">Try Interactive Demo <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost_Windows.zip">
+            Windows (.zip)
+          </a>
+          <a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost_Linux.zip">
+            Linux / Ubuntu (.zip)
+          </a>
+          <a class="button secondary" href="https://minehost-dashboard.adrilolghg.workers.dev/">
+            iOS &amp; Web Control ↗
+          </a>
         </div>
         <div class="hero-telemetry" aria-label="Platform capabilities">
-          <div><strong>OpenJDK 25</strong><span>Bundled inside APK</span></div>
-          <div><strong>4 Engines</strong><span>Paper · Fabric · Vanilla · Pumpkin</span></div>
-          <div><strong>Zero Rent</strong><span>Runs on your own hardware</span></div>
+          <div><strong>Auto Java 8–25</strong><span>Adoptium Portable Manager</span></div>
+          <div><strong>16 Engines</strong><span>Paper · Purpur · Fabric · Forge · Vanilla · Velocity + more</span></div>
+          <div><strong>Cross-Platform</strong><span>Android · Windows · Linux · iOS</span></div>
         </div>
       </div>
 
@@ -289,30 +297,30 @@
 
     <section class="shell content-section" id="setup">
       <div class="section-intro" data-reveal>
-        <p class="eyebrow"><span class="pixel"></span> First launch</p>
-        <h2>From APK to first join in 4 steps.</h2>
-        <p>Keep the host phone connected to Wi-Fi and power while the server runs. The interactive setup wizard in the dashboard guides you through every step.</p>
+        <p class="eyebrow"><span class="pixel"></span> Cross-Platform Setup</p>
+        <h2>From download to first join in 4 steps.</h2>
+        <p>Run MineHost on Android, Windows, or Linux/Ubuntu—and control your server from any browser or iOS device.</p>
       </div>
       <ol class="steps">
         <li data-reveal>
-          <div class="step-top"><span class="step-number">01</span><span class="step-tag">Android 8+</span></div>
-          <h3>Install MineHost</h3>
-          <p>Download the single APK on an ARM64 Android phone. Open it and tap <strong>Start setup</strong>—no Termux or terminal commands needed.</p>
+          <div class="step-top"><span class="step-number">01</span><span class="step-tag">Android · Windows · Linux · iOS</span></div>
+          <h3>Download &amp; Start</h3>
+          <p>Install the Android APK, run <code>Start-MineHost-Windows.bat</code> on Windows, or run <code>./start-minehost-linux.sh</code> on Linux/Ubuntu. On iOS, add the Web Dashboard to your Home Screen.</p>
         </li>
         <li data-reveal>
           <div class="step-top"><span class="step-number">02</span><span class="step-tag">Encrypted Link</span></div>
-          <h3>Pair your phone</h3>
-          <p>Create a MineHost account or sign in. Confirm the one-time device pairing in your browser and return to the app.</p>
+          <h3>Pair your host</h3>
+          <p>Create a MineHost account or sign in. Confirm the one-time host pairing in your browser—or manage locally via <code>http://localhost:8787</code>.</p>
         </li>
         <li data-reveal>
-          <div class="step-top"><span class="step-number">03</span><span class="step-tag">Mojang Official</span></div>
-          <h3>Choose your engine</h3>
-          <p>Pick Paper, Fabric, Vanilla, or Pumpkin. Read and accept the Minecraft EULA, then configure RAM, gamemode, and whitelist.</p>
+          <div class="step-top"><span class="step-number">03</span><span class="step-tag">16 Engines · Auto Java</span></div>
+          <h3>Choose software &amp; version</h3>
+          <p>Pick from 16 server engines (1.0 to latest). MineHost automatically downloads the matching portable Adoptium Java runtime (Java 8, 16, 17, 21, 25).</p>
         </li>
         <li data-reveal>
-          <div class="step-top"><span class="step-number">04</span><span class="step-tag">LAN &amp; Internet</span></div>
+          <div class="step-top"><span class="step-number">04</span><span class="step-tag">LAN, UPnP &amp; Custom Domain</span></div>
           <h3>Start &amp; invite friends</h3>
-          <p>Start the server and join via the local Wi-Fi address—or follow the built-in router guide under <strong>Network</strong> for external players.</p>
+          <p>Start the server, enable 1-Click UPnP Port Forwarding or configure your Custom Domain (A/SRV Record), and play together immediately.</p>
         </li>
       </ol>
     </section>
@@ -320,46 +328,46 @@
     <section class="engine-section" id="engines">
       <div class="shell content-section">
         <div class="section-intro" data-reveal>
-          <p class="eyebrow"><span class="pixel"></span> Server engines</p>
-          <h2>Four engines. One pocket host.</h2>
-          <p>Choose an engine when you create a server profile. Each profile keeps its own isolated world, plugins, settings, and backups.</p>
+          <p class="eyebrow"><span class="pixel"></span> 16 Server Softwares</p>
+          <h2>Every Minecraft engine. Versions 1.0 to latest.</h2>
+          <p>Switch versions anytime with live Modrinth compatibility checks and automatic Portable Java assignment.</p>
         </div>
         <div class="engines">
           <article data-reveal data-tilt>
             <div class="engine-head">
               <div class="engine-mark paper" aria-hidden="true">P</div>
-              <span class="engine-badge">Recommended</span>
+              <span class="engine-badge">Plugin Servers</span>
             </div>
-            <h3>Paper</h3>
-            <p>High-performance Java server with full support for compatible Bukkit and Paper plugins, permissions, and admin tools.</p>
-            <span class="tag">Java 25 · Bukkit &amp; Paper plugins</span>
+            <h3>Paper · Purpur · Folia · Spigot · Bukkit</h3>
+            <p>High-performance Java servers with full support for Bukkit, Spigot, and Paper plugins, plus Aikar's G1GC optimization flags.</p>
+            <span class="tag">Java 8–25 · Modrinth &amp; Hangar Plugins</span>
           </article>
           <article data-reveal data-tilt>
             <div class="engine-head">
               <div class="engine-mark fabric" aria-hidden="true">F</div>
-              <span class="engine-badge">Modded</span>
+              <span class="engine-badge">Mod Loaders</span>
             </div>
-            <h3>Fabric</h3>
-            <p>Lightweight mod loader for technical and content mods. MineHost automatically installs the matching Fabric API.</p>
-            <span class="tag">Java 25 · Modrinth integration</span>
+            <h3>Fabric · Forge · NeoForge · Quilt</h3>
+            <p>Full mod loader support with automatic Fabric API resolution and 1-click Modrinth mod installation &amp; version checks.</p>
+            <span class="tag">Java 8–25 · Automatic Modrinth Resolver</span>
           </article>
           <article data-reveal data-tilt>
             <div class="engine-head">
               <div class="engine-mark vanilla" aria-hidden="true">V</div>
-              <span class="engine-badge">Official</span>
+              <span class="engine-badge">Official Mojang</span>
             </div>
-            <h3>Vanilla</h3>
-            <p>The unpatched official Mojang server jar for pure survival, creative building, or snapshot-accurate mechanics.</p>
-            <span class="tag">Java 25 · 100% Mojang Vanilla</span>
+            <h3>Vanilla Releases &amp; Snapshots</h3>
+            <p>Official Mojang server JARs from Minecraft 1.0 up to the latest release and weekly snapshots.</p>
+            <span class="tag">1.0 – Latest · 100% Mojang Official</span>
           </article>
           <article data-reveal data-tilt>
             <div class="engine-head">
               <div class="engine-mark pumpkin" aria-hidden="true">P</div>
-              <span class="engine-badge">Native ARM64</span>
+              <span class="engine-badge">Proxies, Hybrids &amp; Native</span>
             </div>
-            <h3>Pumpkin</h3>
-            <p>Compiled natively for ARM64. Supports Pumpkin plugins, Bukkit plugins via PatchBukkit, or experimental Java + Bedrock crossplay.</p>
-            <span class="tag">Java 26.3 + Bedrock 26.60</span>
+            <h3>Velocity · BungeeCord · Mohist · Arclight · Pumpkin</h3>
+            <p>Run proxy networks, Forge/Bukkit hybrids, or blazing-fast native Rust Pumpkin servers with Java + Bedrock crossplay.</p>
+            <span class="tag">Proxies · Hybrids · Native ARM64/x64</span>
           </article>
         </div>
       </div>
@@ -373,24 +381,20 @@
       </div>
       <div class="faq" data-reveal>
         <details>
-          <summary>How do friends connect from another network?</summary>
-          <p>First test the local address on the same Wi-Fi. Under <strong>Network</strong> in the dashboard, follow your router's port forwarding steps. Give friends the public address and external port, then test from a different network.</p>
+          <summary>Which platforms does MineHost run on?</summary>
+          <p>MineHost runs as a dedicated server host on <strong>Android (ARM64 APK)</strong>, <strong>Windows 10/11 (x64)</strong>, and <strong>Linux / Ubuntu / Debian (x64 &amp; ARM64)</strong>. On <strong>iOS (iPhone &amp; iPad)</strong>, MineHost runs as a full-screen Progressive Web App (PWA) so you can control your PC, Linux, or Android server from anywhere.</p>
         </details>
         <details>
-          <summary>Can Java and Bedrock players share a world?</summary>
-          <p>MineHost 0.10.14 offers experimental crossplay on Pumpkin for Java 26.3 and Bedrock 26.60. Enable <strong>Allow Bedrock players</strong> and restart. The dashboard shows the separate Bedrock port for TCP and UDP. This mode runs without plugins or PatchBukkit. Paper crossplay is currently unavailable on Android.</p>
+          <summary>Do I need to install Java manually?</summary>
+          <p>No. MineHost includes an <strong>Automatic Portable Java Manager</strong> powered by the Adoptium Temurin API (plus bundled OpenJDK 25 on Android). It automatically downloads and assigns Java 8 (&le;1.16.5), Java 16 (1.17), Java 17 (1.18–1.20.4), or Java 21/25 (1.20.5+) in the background.</p>
+        </details>
+        <details>
+          <summary>How do friends connect from another network?</summary>
+          <p>Under <strong>Network</strong> in the dashboard, click <strong>1-Click UPnP Port Forwarding</strong> to open port 25565 automatically on compatible routers, or configure a custom domain with the built-in <strong>A-Record &amp; SRV-Record DNS generator</strong>.</p>
         </details>
         <details>
           <summary>Where are my world files and is my server secure?</summary>
-          <p>Worlds and backups never leave your host phone unless you download them. Online authentication (<code>online-mode=true</code>) is enforced, device tokens are uniquely generated during pairing, and co-admin invitations can be restricted or revoked at any moment.</p>
-        </details>
-        <details>
-          <summary>Why does my phone appear offline?</summary>
-          <p>Check the phone's Wi-Fi connection, open MineHost and tap <strong>Open website</strong>. Sign in with the account linked to the phone. To prevent Android from putting the server to sleep, set MineHost's battery usage to unrestricted.</p>
-        </details>
-        <details>
-          <summary>How do I update MineHost without losing my world?</summary>
-          <p>Stop your server cleanly in the app or dashboard so it saves the world, then install the new APK over your existing MineHost app. All profiles, worlds, and backups are preserved.</p>
+          <p>Worlds and backups remain strictly inside your host's sandboxed server directory (protected against path traversal). Online authentication (<code>online-mode=true</code>) is enforced by default, and co-admin invitations can be restricted or revoked at any moment.</p>
         </details>
       </div>
     </section>
@@ -402,15 +406,16 @@
             <img src="./minehost.svg" alt="" width="44" height="44">
             <div>
               <p class="eyebrow"><span class="pixel"></span> Ready to launch</p>
-              <h2>Start your server today.</h2>
+              <h2>Start your server on any platform.</h2>
             </div>
           </div>
-          <p>Download the signed APK or inspect the open-source dashboard and runtime archives on GitHub.</p>
+          <p>Download MineHost for Android, Windows, or Linux/Ubuntu—or open the Web &amp; iOS Control Panel directly in your browser.</p>
         </div>
-        <div class="actions">
-          <a class="button primary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">Download APK <span aria-hidden="true">↓</span></a>
-          <a class="button secondary" href="https://minehost-dashboard.adrilolghg.workers.dev/">Open Dashboard <span aria-hidden="true">↗</span></a>
-          <a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases">All Releases <span aria-hidden="true">↗</span></a>
+        <div class="actions" style="flex-wrap:wrap;gap:10px">
+          <a class="button primary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost.apk">Android (.apk) <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost_Windows.zip">Windows (.zip) <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="https://github.com/adrighg-scripts/MineHost/releases/latest/download/MineHost_Linux.zip">Linux / Ubuntu (.zip) <span aria-hidden="true">↓</span></a>
+          <a class="button secondary" href="https://minehost-dashboard.adrilolghg.workers.dev/">iOS &amp; Web Dashboard <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
@@ -418,7 +423,7 @@
 
   <footer class="shell site-footer">
     <a class="brand" href="./"><img src="./minehost.svg" width="26" height="26" alt=""><span>MineHost</span></a>
-    <p>Self-hosted Minecraft Java &amp; Crossplay servers on Android hardware.</p>
+    <p>Cross-platform self-hosted Minecraft servers for Android, Windows, Linux/Ubuntu &amp; iOS.</p>
     <a href="https://github.com/adrighg-scripts/MineHost">GitHub Repository ↗</a>
     <a href="https://github.com/adrighg-scripts/MineHost/releases/latest">Release Notes ↗</a>
     <a href="https://minehost-dashboard.adrilolghg.workers.dev/">Web Dashboard ↗</a>

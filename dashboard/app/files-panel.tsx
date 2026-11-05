@@ -324,7 +324,7 @@ export default function FilesPanel({ serverId, online, active, canWrite, index, 
             } catch (error) {
                 notice(t(error instanceof Error ? error.message : "Verschieben fehlgeschlagen."));
             }
-         }}>{t("Verschieben")}</button>}{!file.directory && <button className="tiny" aria-label={t("Herunterladen")} disabled={!online} onClick={() => download("files_download", target)}><Download size={16}/></button>}
+         }}>{t("Verschieben")}</button>}{!file.directory && file.name.toLowerCase().endsWith(".zip") && canWrite && <button className="btn btn-outline compact" disabled={!online || active} onClick={async () => { try { await run("files_unzip", { path: target, destination: path }); cache.current.clear(); await load(path, true); notice(t("ZIP-Archiv entpackt.")); } catch (e) { notice(t(e instanceof Error ? e.message : "Entpacken fehlgeschlagen.")); } }}>{t("Entpacken")}</button>}{!file.directory && <button className="tiny" aria-label={t("Herunterladen")} disabled={!online} onClick={() => download("files_download", target)}><Download size={16}/></button>}
           <button className="tiny danger" aria-label={t("Löschen")} disabled={!canWrite || active && !queueSupported || !online || uploading} onClick={async () => { if (confirm(t(file.name + " löschen?")))
                 try {
                     const result = await run("files_delete", { path: target });

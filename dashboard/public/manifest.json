@@ -1,0 +1,18 @@
+{
+  "name": "MineHost · Cross-Platform Server Control",
+  "short_name": "MineHost",
+  "description": "Cross-Platform Minecraft Server Hosting & Control Panel für Android, Windows, Linux/Ubuntu & iOS.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#050a08",
+  "theme_color": "#050a08",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
+

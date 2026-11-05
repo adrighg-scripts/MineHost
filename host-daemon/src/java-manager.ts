@@ -114,3 +114,4 @@ async function findJavaBinary(dir: string): Promise<string | null> {
   }
   return null;
 }
+

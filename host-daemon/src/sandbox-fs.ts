@@ -61,3 +61,4 @@ export async function deleteSandboxedEntry(serverRoot: string, targetPath: strin
   if (target === canonicalRoot) throw new Error("Das Server-Hauptverzeichnis darf nicht gelöscht werden.");
   await rm(target, { recursive: true, force: true });
 }
+

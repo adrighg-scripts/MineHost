@@ -72,3 +72,4 @@ MineHost/
 - **Brute-Force- & CSRF-Schutz**: Striktes Rate-Limiting (`auth_attempts`-Tabelle nach IP + Benutzername) sowie `Origin`-Validierung auf allen zustandsverändernden Endpunkten.
 - **Striktes Sandboxing (Path-Traversal-Schutz)**: Alle Dateioperationen (`files_list`, `files_read`, `files_write`, `files_upload`, `files_delete`) lösen Pfade über `realpath` auf und verweigern jeden Zugriff außerhalb des aktiven Server-Profilverzeichnisses sowie Symlink-Escapes.
 - **Automatischer Downgrade-Schutz**: Vor jedem Wechsel der Serversoftware oder Minecraft-Version wird automatisch ein vollständiges Backup der Welt angelegt.
+

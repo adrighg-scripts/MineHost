@@ -77,3 +77,4 @@ export async function checkCompatibilityForVersionSwitch(
 
   return { compatible, incompatible };
 }
+

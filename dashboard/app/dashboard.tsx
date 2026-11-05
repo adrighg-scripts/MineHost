@@ -368,7 +368,7 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
     return <div className="app-shell">
     <header className="topbar"><button className="icon-button mobile-menu" aria-label={t("Navigation öffnen")} onClick={() => setDrawer(true)}><Menu size={22}/></button>
       <a className="brand" href="/"><span className="brand-mark"><Server size={23}/></span><span>{t("MineHost")}<small>{t("SERVER CONTROL")}</small></span></a>
-      <div className="topbar-right"><LanguageMenu /><span className={`connection ${online ? "connected" : ""}`}><span />{online ? t("Handy verbunden") : loading ? t("Verbindung prüfen") : t("Handy offline")}</span><span className="header-rule"/><AccountMenu account={account} signOut={signOut}/></div>
+      <div className="topbar-right"><LanguageMenu /><span className={`connection ${online ? "connected" : ""}`}><span />{online ? t("Host verbunden") : loading ? t("Verbindung prüfen") : t("Host offline")}</span><span className="header-rule"/><AccountMenu account={account} signOut={signOut}/></div>
     </header>
     {drawer && <button className="scrim" aria-label={t("Navigation schließen")} onClick={() => setDrawer(false)}/>}
     <aside className={`sidebar ${drawer ? "open" : ""}`}>
@@ -399,7 +399,7 @@ const current = servers.find(server => server.id === serverId);
           if (!response.ok) throw new Error(((await response.json()) as { error?: string }).error || t("Gerät konnte nicht entfernt werden."));
         }} initialData={phone?.profiles ?? initialProfiles} canRename={(phone?.managementVersion || 0) >= 7} online={online} active={active} running={running} run={job}/>}</div>
       <div className="nav-caption">{t("VERWALTUNG")}</div><nav>{visibleTabs.map(item => <button key={item.id} className={tab === item.id ? "nav-item selected" : "nav-item"} onClick={() => navigate(item.id)}><item.icon size={19}/><span>{t(item.title)}</span>{item.id === "backups" && backups.length > 0 && <b>{backups.length}</b>}</button>)}</nav>
-      <div className="sidebar-bottom"><Smartphone size={18}/><div><strong>{phone?.model || t("Dein Android-Handy")}</strong><small>{t("Der Server bleibt auf deinem Handy")}</small></div></div>
+      <div className="sidebar-bottom"><Smartphone size={18}/><div><strong>{phone?.model || t("Dein Server-Host")}</strong><small>{t("Lokaler Host · Android, Windows & Linux")}</small></div></div>
     </aside>
     <main className="workspace">
       <div className="page-heading"><div><div className="breadcrumb">{t("Mein Server ")}<ChevronRight size={13}/> {t(selected.title)}</div><h1>{guide?(locale==="de"?"Einrichtung":"Setup"):t(selected.title)}</h1></div>
@@ -416,7 +416,7 @@ const current = servers.find(server => server.id === serverId);
         <div className="metric"><span>{t("Speicher")}</span><strong>{phone ? `${(phone.diskUsedMb / 1024).toFixed(2)} GiB` : "?"}<em>{t(" / ")}{phone ? `${(phone.diskFreeMb / 1024).toFixed(1)} GiB frei` : "?"}</em></strong>{phone && (phone.diskUsedMb + phone.diskFreeMb) > 0 ? <div className="metric-bar"><i style={{ width: `${Math.min(100, Math.max(4, (phone.diskUsedMb / (phone.diskUsedMb + phone.diskFreeMb)) * 100))}%` }}/></div> : null}</div>
       </section>
       {online && !playersPresent && !phone?.publicAccess?.configured && <div className="notice">{t("Portfreigabe noch nicht eingerichtet.")} <button className="btn btn-outline compact" onClick={() => navigate("network")}>{t("Netzwerk einrichten")}</button></div>}
-      {!online && <div className="offline-note"><Smartphone size={18}/><div><strong>{loading ? t("Verbindung wird geprüft …") : t("Das Handy ist gerade nicht verbunden.")}</strong><p>{t("Öffne MineHost auf dem Handy und prüfe seine Internetverbindung. Sobald es verbunden ist, kannst du den Server hier verwalten.")}</p></div></div>}
+      {!online && <div className="offline-note"><Smartphone size={18}/><div><strong>{loading ? t("Verbindung wird geprüft …") : t("Dein Server-Host ist gerade nicht verbunden.")}</strong><p>{t("Starte MineHost auf deinem Host-Gerät (Android, Windows oder Linux/Ubuntu) und prüfe die Verbindung. Sobald es verbunden ist, kannst du den Server hier in Echtzeit verwalten.")}</p></div></div>}
       {online && phone?.message && ["error", "stop_error"].includes(phone.phase) && <div className="notice error-note">{t(phone.message)}{phone.phase === "stop_error" && <button className="btn btn-red" disabled={!!pending} onClick={() => { if (confirm(t("Minecraft hat beim Stoppen einen Fehler gemeldet. Erzwungen beenden? Nicht gespeicherte Änderungen können verloren gehen.")))
         perform("recover", { confirmed: true }); }}>{t("H\u00E4ngenden Server beenden")}</button>}</div>}
       {tab === "members" && owner && <Members serverId={serverId}/>}

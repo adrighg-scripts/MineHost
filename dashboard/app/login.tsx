@@ -13,6 +13,7 @@ export default function Login({connectingDevice=false}:{connectingDevice?:boolea
         setBusy(true);
         setError("");
         const form = new FormData(event.currentTarget);
+        let redirected = false;
         try {
             const username = String(form.get("username") ?? "").trim();
             const password = String(form.get("password") ?? "");
@@ -24,23 +25,26 @@ export default function Login({connectingDevice=false}:{connectingDevice?:boolea
             }
             const credentials = { username, password };
             if (register) {
-                const response = await fetch("/api/auth/register", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
+                const response = await fetch("/api/auth/register", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
                 const result: any = await response.json();
                 if (!response.ok)
                     throw new Error(result.error);
             }
-            const response = await fetch("/api/auth/login", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
+            const response = await fetch("/api/auth/login", { method: "POST", credentials: "same-origin", headers: { "Content-Type": "application/json" }, body: JSON.stringify(credentials) });
             const result: any = await response.json();
             if (!response.ok)
                 throw new Error(result.error ? `${result.error} (Falls du vom alten ChatGPT-Link kommst: Klicke unten einmalig auf „Neues Konto erstellen“, um deinen Account hier anzulegen.)` : "Anmeldung fehlgeschlagen.");
-            if (connectingDevice) window.location.replace("/connect" + window.location.hash);
-            else window.location.reload();
+            redirected = true;
+            const nextUrl = new URL(window.location.href);
+            if (connectingDevice) nextUrl.pathname = "/connect";
+            nextUrl.searchParams.set("_", String(Date.now()));
+            window.location.replace(nextUrl.pathname + nextUrl.search + nextUrl.hash);
         }
         catch (error) {
             setError(error instanceof Error ? error.message : "Anmeldung fehlgeschlagen.");
         }
         finally {
-            setBusy(false);
+            if (!redirected) setBusy(false);
         }
     }
     return <main className="login-page"><section className="login-card"><LanguageMenu /><div className="brand"><span className="brand-mark"><Server size={24}/></span><span>{t("MineHost")}<small>{t("SERVER CONTROL")}</small></span></div><h1>{register ? t("Konto erstellen") : t("Anmelden")}</h1><p>{t("Verwalte deinen Minecraft-Server von \u00FCberall.")}</p><form onSubmit={submit}><label>{t("Benutzername")}<input name="username" placeholder="z. B. adrilolghgadri" autoComplete="username" required minLength={3} maxLength={32} autoCapitalize="none" spellCheck={false}/></label><label>{t("Passwort")}<input name="password" type="password" placeholder={register ? "Mindestens 14 Zeichen" : "Dein Passwort"} autoComplete={register ? "new-password" : "current-password"} required minLength={register ? 14 : undefined} maxLength={128}/></label>{register && <p>{t("Verwende ein eigenes Passwort mit mindestens 14 Zeichen.")}</p>}{error && <p role="alert" className="login-error">{t(error)}</p>}<button className="btn btn-blue" disabled={busy}>{busy ? t("Bitte warten …") : register ? t("Konto erstellen") : t("Anmelden")}</button><button type="button" className="btn btn-outline" onClick={() => { setRegister(!register); setError(""); }}>{register ? t("Ich habe schon ein Konto") : t("Neues Konto erstellen")}</button></form><div className="login-help"><LockKeyhole size={16}/><p>{t("Eigener Server: MineHost installieren → „Einrichtung starten“. Erstelle hier dein Konto und verbinde dein Handy oder deinen PC-Host.")}</p></div></section></main>;

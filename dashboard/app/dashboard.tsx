@@ -1,7 +1,7 @@
 "use client";
 import { useLanguage } from "./language";
 import { useState, useEffect, useRef, useCallback, type FormEvent } from "react";
-import { Terminal, FolderOpen, Archive, Users, Globe, Settings, Server, Play, Square, RotateCw, ChevronDown, ChevronRight, ArrowLeft, Upload, Download, Plus, Trash2, Save, Menu, X, LogOut, ShieldCheck, Smartphone, RefreshCw, FileText, Puzzle, Copy, ExternalLink, Check, LoaderCircle, CircleHelp } from "lucide-react";
+import { Terminal, FolderOpen, Archive, Users, Globe, Settings, Server, Play, Square, RotateCw, ChevronDown, ChevronRight, ArrowLeft, Upload, Download, Plus, Trash2, Save, Menu, X, LogOut, ShieldCheck, Smartphone, RefreshCw, FileText, Puzzle, Copy, ExternalLink, Check, LoaderCircle, CircleHelp, LayoutGrid, Activity } from "lucide-react";
 import { LanguageMenu } from "./language";
 import {SetupGuide,HelpPanel} from "./setup-guide";
 import Profiles from "./profiles";
@@ -61,7 +61,7 @@ type Device = {
     };
 };
 const tabs = [
-
+    { id: "overview", title: "Server-Übersicht", icon: LayoutGrid },
     { id: "console", title: "Konsole", icon: Terminal }, { id: "files", title: "Dateien", icon: FolderOpen },
     { id: "backups", title: "Backups", icon: Archive }, { id: "players", title: "Spieler", icon: Users },
     { id: "network", title: "Netzwerk", icon: Globe }, { id: "settings", title: "Einstellungen", icon: Settings },
@@ -139,7 +139,7 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
         value: any;
         time: number;
     }>());
-    const visibleTabs = tabs.filter(item => item.id === "members" ? owner&&(!phone?.profileId||phone.profileId==="default") : ({ help:true, console: true, files: can("files.read"), software: can("settings.read"), mods: phone?.software?.software === "fabric" && can("mods.read"), plugins: phone?.software?.software !== "fabric" && can("plugins.read"), backups: can("backups.read"), players: can("players"), settings: can("settings.read"), network: can("network") } as Record<string, boolean>)[item.id]);
+    const visibleTabs = tabs.filter(item => item.id === "members" ? owner&&(!phone?.profileId||phone.profileId==="default") : ({ overview: true, help:true, console: true, files: can("files.read"), software: can("settings.read"), mods: phone?.software?.software === "fabric" && can("mods.read"), plugins: phone?.software?.software !== "fabric" && can("plugins.read"), backups: can("backups.read"), players: can("players"), settings: can("settings.read"), network: can("network") } as Record<string, boolean>)[item.id]);
     useEffect(()=>{if(!owner||!phone||guideChecked.current)return;guideChecked.current=true;try{if(new URLSearchParams(window.location.search).get("setup")==="1"||phone.configured===false&&!localStorage.getItem(guideKey+":"+(phone.profileId||"default")))setGuide(true);}catch{}},[owner,phone]);
     const online = !!phone?.online;
     const running = phone?.phase === "running";
@@ -448,6 +448,100 @@ const current = servers.find(server => server.id === serverId);
         return;
     } setTab("files"); setPath("mods"); }}/></div>}
       <div hidden={tab !== "help"}><HelpPanel owner={owner} start={()=>setGuide(true)}/></div>
+      {/* Tab: Server-Übersicht & Multiserver-Monitor */}
+      <div hidden={tab !== "overview"}>
+        <section className="panel" style={{ marginBottom: 18 }}>
+          <div className="section-heading">
+            <div>
+              <h2>{locale === "en" ? "Server Overview & Resource Lines" : "Alle Server & Live-Leistungsübersicht"}</h2>
+              <p className="muted">{locale === "en" ? "Real-time resource telemetry lines and one-click controls for all servers." : "Echtzeit-Leistungskurven, Status und Schnellsteuerung (Start/Stopp/Neustart) für deine Server."}</p>
+            </div>
+            <div style={{ display: "flex", gap: 8 }}>
+              {can("power") && <>
+                <button className="btn btn-blue compact" disabled={!online || active || pending > 0} onClick={() => perform("start")}><Play size={14} fill="currentColor"/>{t("Start")}</button>
+                <button className="btn btn-outline compact" disabled={!online || !running || pending > 0} onClick={() => perform("restart")}><RotateCw size={14}/>{t("Neustart")}</button>
+                <button className="btn btn-red compact" disabled={!online || !["starting", "running"].includes(phone?.phase ?? "") || pending > 0} onClick={() => perform("stop")}><Square size={13} fill="currentColor"/>{t("Stopp")}</button>
+              </>}
+            </div>
+          </div>
+
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(320px, 1fr))", gap: 14 }}>
+            {/* Card für den aktuell ausgewählten Host/Server */}
+            <div className="telemetry-card" style={{ padding: 18, border: "1px solid rgba(52, 211, 153, 0.35)", background: "rgba(11, 22, 18, 0.85)" }}>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                <div>
+                  <strong style={{ fontSize: 16, color: "#ecfdf5", display: "flex", alignItems: "center", gap: 8 }}>
+                    <Server size={18} color="#24dc8e"/>
+                    {phone?.profileName || phone?.model || "Aktiver Server"}
+                  </strong>
+                  <small style={{ color: "#8fa89b", fontSize: 12 }}>{phone?.software ? `${phone.software.software.toUpperCase()} ${phone.software.version}` : "Minecraft Java"}</small>
+                </div>
+                <span className={`connection ${online && running ? "connected" : ""}`}>
+                  <span />{online ? t(phases[phone?.phase ?? "stopped"]) : t("Offline")}
+                </span>
+              </div>
+
+              {/* Live Performance Sparklines */}
+              <div style={{ display: "grid", gap: 12, marginTop: 8 }}>
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ color: "#a7c7b7" }}>CPU-Auslastung:</span>
+                    <strong style={{ color: "#24dc8e" }}>{online && phone?.cpu != null ? `${phone.cpu.toFixed(1)} %` : "0 %"}</strong>
+                  </div>
+                  <svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none" style={{ height: 38 }}>
+                    <path d={sparkPath(cpuHist) + " L200,44 L0,44 Z"} fill="rgba(36,220,142,0.14)"/>
+                    <path d={sparkPath(cpuHist)} fill="none" stroke="#24dc8e" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+
+                <div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, marginBottom: 4 }}>
+                    <span style={{ color: "#a7c7b7" }}>RAM-Verlauf (Heap):</span>
+                    <strong style={{ color: "#34d399" }}>{online && phone?.rssMb != null ? `${Math.round(phone.rssMb)} MiB / ${phone?.ram || 2048} MiB` : "—"}</strong>
+                  </div>
+                  <svg className="sparkline-svg" viewBox="0 0 200 44" preserveAspectRatio="none" style={{ height: 38 }}>
+                    <path d={sparkPath(ramHist) + " L200,44 L0,44 Z"} fill="rgba(52,211,153,0.14)"/>
+                    <path d={sparkPath(ramHist)} fill="none" stroke="#34d399" strokeWidth="2" strokeLinecap="round"/>
+                  </svg>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12 }}>
+                <span style={{ color: "#8fa89b" }}>Spieladresse: <code style={{ color: "#ecfdf5" }}>{publicAddress || phone?.lan || "Nicht aktiv"}</code></span>
+                <span style={{ color: "#34d399" }}>{phone?.onlinePlayers || 0} Spieler online</span>
+              </div>
+            </div>
+
+            {/* Übersicht aller verknüpften Server/Geräte */}
+            {servers.filter(s => s.id !== serverId).map(s => (
+              <div key={s.id} className="telemetry-card" style={{ padding: 18, border: "1px solid rgba(255,255,255,0.08)", background: "rgba(11, 22, 18, 0.45)" }}>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 12 }}>
+                  <div>
+                    <strong style={{ fontSize: 16, color: "#ecfdf5", display: "flex", alignItems: "center", gap: 8 }}>
+                      <Smartphone size={18} color="#8fa89b"/>
+                      {s.model || s.name}
+                    </strong>
+                    <small style={{ color: "#8fa89b", fontSize: 12 }}>Host-ID: {s.id.slice(0, 8)}…</small>
+                  </div>
+                  <span className={`connection ${s.online ? "connected" : ""}`}>
+                    <span />{s.online ? t("Verbunden") : t("Offline")}
+                  </span>
+                </div>
+
+                <div style={{ padding: "16px 0", color: "#8fa89b", fontSize: 13, textAlign: "center" }}>
+                  {s.online ? "Host ist bereit. Klicke unten, um zu diesem Server zu wechseln." : "Dieser Server-Host ist aktuell offline."}
+                </div>
+
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)" }}>
+                  <a href={`/?server=${encodeURIComponent(s.id)}`} className="btn btn-outline compact" style={{ textDecoration: "none" }}>
+                    Zu diesem Server wechseln →
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
       {!guide&&owner&&online&&phone?.configured===false&&<section className="panel"><h2>{locale==="de"?"Deinen Server einrichten":"Set up your server"}</h2><button className="btn btn-blue" onClick={()=>setGuide(true)}>{locale==="de"?"Schritt für Schritt starten":"Start step by step"}</button></section>}
       <div hidden={tab !== "console"}>
       <div className="telemetry-grid">

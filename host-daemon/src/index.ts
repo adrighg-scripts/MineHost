@@ -184,13 +184,14 @@ async function handleJob(kind: string, payload: any, state: HostState): Promise<
       const ver = String(payload.version || "1.21.4");
       console.log(`[MineHost] Installiere ${sw.toUpperCase()} ${ver} …`);
       const res = await downloadServerJar(SERVER_DIR, sw, ver);
+      const finalVer = res.resolvedVersion || ver;
       state.software = (payload.software || "paper") as ServerSoftwareType;
-      state.version = ver;
+      state.version = finalVer;
       state.build = res.build;
       state.configured = true;
       await saveState(state);
-      console.log(`[MineHost] ${sw.toUpperCase()} ${ver} installiert!`);
-      return { message: `${sw.toUpperCase()} ${ver} erfolgreich installiert.` };
+      console.log(`[MineHost] ${sw.toUpperCase()} ${finalVer} installiert!`);
+      return { message: `${sw.toUpperCase()} ${finalVer} erfolgreich installiert.` };
     }
     case "start": {
       console.log(`[MineHost] Starte Minecraft-Server (${state.software} ${state.version}) …`);
@@ -412,6 +413,7 @@ async function main() {
 
       const snapshot = {
         phase: mc.phase,
+        message: mc.phase === "error" ? (mc.lastError || "Serverprozess wurde mit einem Fehler beendet.") : undefined,
         configured: state.configured,
         onlinePlayers: mc.onlinePlayers.size,
         model: hostModelName(),

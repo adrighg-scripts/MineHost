@@ -69,7 +69,7 @@ export default function Profiles({ online, active, running, canRename, canDelete
         </div>
         <dialog ref={dialog} className="server-management-dialog" onClose={() => { setRemoval(null); setDeletionCommand(""); setError(""); }} aria-labelledby="server-management-title">
         <div className="section-heading">
-            <div><h2 id="server-management-title">{t("Server verwalten")}</h2><p>{locale === "en" ? "Manage servers and the phone that hosts them." : "Verwalte deine Server und das Handy, auf dem sie laufen."}</p></div>
+            <div><h2 id="server-management-title">{t("Server verwalten")}</h2><p>{locale === "en" ? "Manage servers and the host device that runs them." : "Verwalte deine Server und das Host-Gerät, auf dem sie laufen."}</p></div>
             <button type="button" className="tiny" aria-label={t("Schließen")} onClick={() => dialog.current?.close()}><X size={20}/></button>
         </div>
         <section className="manager-card"><h3>{t("Server")}</h3>{picker}<p className="muted">{locale === "en" ? "Create a separate server with its own world and settings. Rename changes the label of the selected server." : "Erstellen legt einen eigenen Server mit separater Welt und eigenen Einstellungen an. Umbenennen ändert den Namen des ausgewählten Servers."}</p>

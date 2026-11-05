@@ -2,7 +2,7 @@ import { spawn, type ChildProcessWithoutNullStreams } from "node:child_process";
 import { EventEmitter } from "node:events";
 import { writeFile } from "node:fs/promises";
 import { join } from "node:path";
-import { ensurePortableJava } from "./java-manager.ts";
+import { ensurePortableJava, type JavaMajor } from "./java-manager.ts";
 
 export interface ServerConfig {
   serverDir: string;
@@ -47,19 +47,21 @@ export class MinecraftProcessManager extends EventEmitter {
   public onlinePlayers = new Set<string>();
   public phase: "stopped" | "starting" | "running" | "stopping" | "error" = "stopped";
   public startedAt = 0;
+  public lastError = "";
 
   public getConsoleSnapshot(): string {
     return this.logs.slice(-400).join("\n");
   }
 
-  public async start(config: ServerConfig): Promise<void> {
+  public async start(config: ServerConfig, overrideJava?: JavaMajor): Promise<void> {
     if (this.proc) throw new Error("Server läuft bereits.");
     this.phase = "starting";
+    this.lastError = "";
     this.emit("phase", this.phase);
 
     const { javaBin, major } = await ensurePortableJava(config.dataDir, config.mcVersion, msg => {
       this.appendLog(`[MineHost-Runtime] ${msg}`);
-    });
+    }, overrideJava);
 
     await writeFile(join(config.serverDir, "eula.txt"), "eula=true\n", "utf8");
 
@@ -80,6 +82,7 @@ export class MinecraftProcessManager extends EventEmitter {
     });
     this.proc = child;
     this.startedAt = Date.now();
+    let needsJava25Retry = false;
 
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
@@ -88,8 +91,12 @@ export class MinecraftProcessManager extends EventEmitter {
       for (const line of chunk.split(/\r?\n/)) {
         if (!line) continue;
         this.appendLog(line);
+        if (/requires Java 25|class file version 69\.0/i.test(line)) {
+          needsJava25Retry = true;
+        }
         if (/Done \([0-9.,]+s\)! For help, type "help"/.test(line)) {
           this.phase = "running";
+          this.lastError = "";
           this.emit("phase", this.phase);
         }
         const joinMatch = line.match(/\]: ([A-Za-z0-9_.]{1,32}) joined the game/);
@@ -101,13 +108,29 @@ export class MinecraftProcessManager extends EventEmitter {
 
     child.stderr.on("data", (chunk: string) => {
       for (const line of chunk.split(/\r?\n/)) {
-        if (line) this.appendLog(`[STDERR] ${line}`);
+        if (line) {
+          this.appendLog(`[STDERR] ${line}`);
+          this.lastError = line;
+          if (/requires Java 25|class file version 69\.0/i.test(line)) {
+            needsJava25Retry = true;
+          }
+        }
       }
     });
 
     child.on("close", code => {
       this.proc = null;
       this.onlinePlayers.clear();
+      if (needsJava25Retry && !overrideJava && major !== 25) {
+        this.appendLog(`[MineHost-Runtime] Server erfordert Java 25 — lade automatisch Java 25 herunter und starte neu …`);
+        void this.start(config, 25).catch(err => {
+          this.phase = "error";
+          this.lastError = err instanceof Error ? err.message : String(err);
+          this.appendLog(`[STDERR] ${this.lastError}`);
+          this.emit("phase", this.phase);
+        });
+        return;
+      }
       this.phase = code === 0 || this.phase === "stopping" ? "stopped" : "error";
       this.appendLog(`[MineHost] Serverprozess beendet (Exit-Code: ${code ?? 0}).`);
       this.emit("phase", this.phase);

@@ -48,30 +48,50 @@ export async function fetchAllMinecraftVersions(includeSnapshots = false): Promi
 export async function resolveServerJar(
   software: ServerSoftwareType,
   mcVersion: string
-): Promise<{ url: string; sha256?: string; sha1?: string; build?: string | number; isInstaller?: boolean }> {
+): Promise<{ url: string; sha256?: string; sha1?: string; build?: string | number; resolvedVersion?: string; isInstaller?: boolean }> {
   switch (software) {
     case "paper":
     case "folia":
     case "velocity":
     case "waterfall": {
-      const vData = await fetchJson(`https://api.papermc.io/v2/projects/${software}/versions/${mcVersion}/builds`);
+      let targetVer = mcVersion;
+      let vData: any;
+      try {
+        vData = await fetchJson(`https://api.papermc.io/v2/projects/${software}/versions/${targetVer}/builds`);
+      } catch {
+        const proj = await fetchJson(`https://api.papermc.io/v2/projects/${software}`);
+        const versions: string[] = proj.versions || [];
+        targetVer = versions[versions.length - 1] || "1.21.4";
+        vData = await fetchJson(`https://api.papermc.io/v2/projects/${software}/versions/${targetVer}/builds`);
+      }
       const builds = vData.builds || [];
       const latest = builds[builds.length - 1];
-      if (!latest) throw new Error(`Kein ${software}-Build für ${mcVersion} gefunden.`);
+      if (!latest) throw new Error(`Kein ${software}-Build für ${targetVer} gefunden.`);
       const file = latest.downloads?.application;
       return {
-        url: `https://api.papermc.io/v2/projects/${software}/versions/${mcVersion}/builds/${latest.build}/downloads/${file.name}`,
+        url: `https://api.papermc.io/v2/projects/${software}/versions/${targetVer}/builds/${latest.build}/downloads/${file.name}`,
         sha256: file.sha256,
         build: latest.build,
+        resolvedVersion: targetVer,
       };
     }
     case "purpur": {
-      const vData = await fetchJson(`https://api.purpurmc.org/v2/purpur/${mcVersion}`);
+      let targetVer = mcVersion;
+      let vData: any;
+      try {
+        vData = await fetchJson(`https://api.purpurmc.org/v2/purpur/${targetVer}`);
+      } catch {
+        const proj = await fetchJson(`https://api.purpurmc.org/v2/purpur`);
+        const versions: string[] = proj.versions || [];
+        targetVer = versions[versions.length - 1] || "1.21.4";
+        vData = await fetchJson(`https://api.purpurmc.org/v2/purpur/${targetVer}`);
+      }
       const latest = vData.builds?.latest;
-      if (!latest) throw new Error(`Kein Purpur-Build für ${mcVersion} gefunden.`);
+      if (!latest) throw new Error(`Kein Purpur-Build für ${targetVer} gefunden.`);
       return {
-        url: `https://api.purpurmc.org/v2/purpur/${mcVersion}/${latest}/download`,
+        url: `https://api.purpurmc.org/v2/purpur/${targetVer}/${latest}/download`,
         build: latest,
+        resolvedVersion: targetVer,
       };
     }
     case "spigot":
@@ -80,17 +100,25 @@ export async function resolveServerJar(
       return {
         url: `https://download.getbukkit.org/${software}/${software}-${mcVersion}.jar`,
         build: mcVersion,
+        resolvedVersion: mcVersion,
       };
     }
     case "fabric": {
-      const loaders = await fetchJson<any[]>(`https://meta.fabricmc.net/v2/versions/loader/${mcVersion}`);
+      let targetVer = mcVersion;
+      let loaders = await fetchJson<any[]>(`https://meta.fabricmc.net/v2/versions/loader/${targetVer}`).catch(() => []);
+      if (!loaders.length) {
+        const gameVers = await fetchJson<any[]>(`https://meta.fabricmc.net/v2/versions/game`);
+        targetVer = gameVers.find(g => g.stable)?.version || "1.21.4";
+        loaders = await fetchJson<any[]>(`https://meta.fabricmc.net/v2/versions/loader/${targetVer}`);
+      }
       const installers = await fetchJson<any[]>(`https://meta.fabricmc.net/v2/versions/installer`);
       const loader = loaders.find(l => l.loader?.stable)?.loader?.version || loaders[0]?.loader?.version;
       const installer = installers.find(i => i.stable)?.version || installers[0]?.version;
-      if (!loader || !installer) throw new Error(`Fabric Loader für ${mcVersion} nicht verfügbar.`);
+      if (!loader || !installer) throw new Error(`Fabric Loader für ${targetVer} nicht verfügbar.`);
       return {
-        url: `https://meta.fabricmc.net/v2/versions/loader/${mcVersion}/${loader}/${installer}/server/jar`,
+        url: `https://meta.fabricmc.net/v2/versions/loader/${targetVer}/${loader}/${installer}/server/jar`,
         build: loader,
+        resolvedVersion: targetVer,
       };
     }
     case "quilt": {
@@ -165,7 +193,7 @@ export async function downloadServerJar(
   serverDir: string,
   software: ServerSoftwareType,
   mcVersion: string
-): Promise<{ jarPath: string; build?: string | number }> {
+): Promise<{ jarPath: string; build?: string | number; resolvedVersion?: string }> {
   await mkdir(serverDir, { recursive: true });
   const resolved = await resolveServerJar(software, mcVersion);
   const jarPath = join(serverDir, "server.jar");
@@ -189,5 +217,5 @@ export async function downloadServerJar(
     if (actual !== resolved.sha1) throw new Error("SHA-1 Prüfsumme der Server-JAR stimmt nicht überein.");
   }
 
-  return { jarPath, build: resolved.build };
+  return { jarPath, build: resolved.build, resolvedVersion: resolved.resolvedVersion || mcVersion };
 }

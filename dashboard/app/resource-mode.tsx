@@ -18,8 +18,8 @@ export default function ResourceMode({ settings, onChange, active }: {
     return <div>
         <label className="toggle-row">
             <span>
-                <strong>{t("Maximale Handy-Ressourcen verwenden")}</strong>
-                <small>{supported ? t("Java nutzt alle verfügbaren CPU-Kerne. Das RAM-Limit wird vor jedem Start mit Reserve für Android und Java berechnet. Keine Änderung von Sichtweite oder Spielerzahl.") : t("Dafür die aktuelle MineHost-APK auf dem Handy installieren.")}{supported && !active && settings.maxMemoryEstimate > 0 ? ` ${t("Aktuelle RAM-Schätzung:")} ${settings.maxMemoryEstimate} MiB.` : ""}</small>
+                <strong>{locale === "en" ? "Use maximum host resources" : "Maximale Host-Ressourcen verwenden"}</strong>
+                <small>{supported ? (locale === "en" ? "Java uses all available CPU cores. The RAM limit is calculated before each start with headroom for the OS and JVM. No changes to view distance or player count." : "Java nutzt alle verfügbaren CPU-Kerne. Das RAM-Limit wird vor jedem Start mit Reserve für System und Java berechnet. Keine Änderung von Sichtweite oder Spielerzahl.") : t("Dafür die aktuelle MineHost-Version auf dem Host installieren.")}{supported && !active && settings.maxMemoryEstimate > 0 ? ` ${t("Aktuelle RAM-Schätzung:")} ${settings.maxMemoryEstimate} MiB.` : ""}</small>
             </span>
             <input type="checkbox" disabled={!supported || active} checked={!!settings.maxResources} onChange={event => onChange({ ...settings, maxResources: event.target.checked })}/>
         </label>

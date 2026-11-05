@@ -6,6 +6,7 @@ import { Cpu, ShieldAlert, CheckCircle2, Sparkles, SearchCheck, Download } from 
 function requiredJava(software: string, version: string): string {
     if (software === "pumpkin") return "Native Rust Engine (Kein Java nötig · Minimaler RAM-Verbrauch)";
     if (!version) return "Java 21 LTS (Adoptium Temurin · Automatischer Hintergrund-Download)";
+    if (!version.startsWith("1.")) return "Java 25 (Adoptium Temurin · Automatisch für Minecraft 26.x+ zugewiesen)";
     const parts = version.split(".").map(Number);
     const minor = parts[1] || 21;
     const patch = parts[2] || 0;
@@ -82,7 +83,11 @@ export default function SoftwarePanel({ online, active, supported, current, conf
             try { sessionStorage.setItem("minehost-software-catalog", JSON.stringify(merged)); } catch {}
             const baseEngine = mapToHostEngine(software);
             const options = merged.filter((item: any) => item[baseEngine]);
-            setVersion(current && options.some((item: any) => item.version === current.version) ? current.version : options.find((item: any) => item.version.startsWith(current?.version?.split(".").slice(0, 2).join(".") + "."))?.version || options[0]?.version || "");
+            setVersion(prev => {
+                if (configured && current?.version && options.some((item: any) => item.version === current.version)) return current.version;
+                if (prev && options.some((item: any) => item.version === prev)) return prev;
+                return options.find((item: any) => item.version === "1.21.4")?.version || options[0]?.version || "";
+            });
         } catch (error) {
             setMessage(t(error instanceof Error ? error.message : "Katalog konnte nicht geladen werden."));
         } finally {

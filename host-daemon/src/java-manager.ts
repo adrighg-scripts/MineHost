@@ -7,14 +7,17 @@ import { promisify } from "node:util";
 
 const execFileAsync = promisify(execFile);
 
-export type JavaMajor = 8 | 16 | 17 | 21;
+export type JavaMajor = 8 | 16 | 17 | 21 | 25;
 
 /**
- * Determines the required Java major version for any Minecraft Java version (1.0 to latest).
+ * Determines the required Java major version for any Minecraft Java version (1.0 to latest 26.x+).
  */
 export function resolveRequiredJavaVersion(mcVersion: string): JavaMajor {
   const match = mcVersion.match(/^1\.(\d+)(?:\.(\d+))?/);
-  if (!match) return 21; // Snapshots or 26.x+ default to Java 21 LTS
+  if (!match) {
+    // Minecraft 26.x+ and modern snapshots require Java 25
+    return 25;
+  }
   const minor = parseInt(match[1], 10);
   const patch = match[2] ? parseInt(match[2], 10) : 0;
 
@@ -48,9 +51,10 @@ function adoptiumPlatform(): { os: string; arch: string; ext: "zip" | "tar.gz" }
 export async function ensurePortableJava(
   dataDir: string,
   mcVersion: string,
-  onProgress?: (msg: string) => void
+  onProgress?: (msg: string) => void,
+  overrideMajor?: JavaMajor
 ): Promise<{ javaBin: string; major: JavaMajor }> {
-  const major = resolveRequiredJavaVersion(mcVersion);
+  const major = overrideMajor || resolveRequiredJavaVersion(mcVersion);
   const runtimeDir = join(dataDir, "runtimes", `java-${major}`);
   await mkdir(runtimeDir, { recursive: true });
 

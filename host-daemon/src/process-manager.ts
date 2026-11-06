@@ -99,10 +99,10 @@ export class MinecraftProcessManager extends EventEmitter {
           this.lastError = "";
           this.emit("phase", this.phase);
         }
-        const joinMatch = line.match(/\]: ([A-Za-z0-9_.]{1,32}) joined the game/);
-        if (joinMatch) this.onlinePlayers.add(joinMatch[1]);
-        const leaveMatch = line.match(/\]: ([A-Za-z0-9_.]{1,32}) (?:left the game|lost connection)/);
-        if (leaveMatch) this.onlinePlayers.delete(leaveMatch[1]);
+        const joinMatch = line.match(/\]: ([A-Za-z0-9_.* ]{1,32}) joined the game/);
+        if (joinMatch) this.onlinePlayers.add(joinMatch[1].trim());
+        const leaveMatch = line.match(/\]: ([A-Za-z0-9_.* ]{1,32}) (?:left the game|lost connection)/);
+        if (leaveMatch) this.onlinePlayers.delete(leaveMatch[1].trim());
       }
     });
 

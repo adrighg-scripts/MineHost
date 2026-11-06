@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import { Shield, Heart, Zap, UserMinus, Ban, RotateCcw } from "lucide-react";
 
 function PlayerAvatar({ name, size = 24 }: { name: string; size?: number }) {
-    const clean = name.replace(/^\./, "");
+    const clean = name.replace(/^[\.*]/, "").trim();
     return <img
         src={`https://mc-heads.net/avatar/${encodeURIComponent(clean)}/${size}`}
         alt=""
@@ -90,11 +90,28 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
         <h2>{t("Spieler")}</h2>
         <p className="muted">{t("Aktualisiert sich automatisch. W\u00E4hle einen Spieler aus.")}</p>
         <div className="player-selection">
-            {players.online.map((player: string) => <button className={`btn ${selected === player ? "btn-blue" : "btn-outline"}`} key={player} onClick={() => setSelected(player)}><PlayerAvatar name={player} size={22}/><span>{player}</span></button>)}
+            {players.online.map((player: string) => {
+                const isBedrock = player.startsWith(".") || player.startsWith("*");
+                return (
+                    <button className={`btn ${selected === player ? "btn-blue" : "btn-outline"}`} key={player} onClick={() => setSelected(player)} style={{ display: "inline-flex", alignItems: "center", gap: 7 }}>
+                        <PlayerAvatar name={player} size={22}/>
+                        <span>{player}</span>
+                        {isBedrock && <span style={{ fontSize: "0.72rem", background: "rgba(16,185,129,0.2)", color: "#34d399", padding: "1px 6px", borderRadius: 4, fontWeight: 600 }}>Bedrock</span>}
+                    </button>
+                );
+            })}
             {!players.online.length && <p>{t("Gerade ist niemand online.")}</p>}
         </div>
         {selected && <div className="player-detail">
-            <h3 style={{ display: "flex", alignItems: "center", gap: 10 }}><PlayerAvatar name={selected} size={32}/><span>{selected}</span></h3>
+            <h3 style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <PlayerAvatar name={selected} size={32}/>
+                <span>{selected}</span>
+                {(selected.startsWith(".") || selected.startsWith("*")) && (
+                    <span style={{ fontSize: "0.8rem", background: "rgba(16,185,129,0.2)", color: "#34d399", padding: "2px 8px", borderRadius: 4, fontWeight: 600 }}>
+                        Bedrock Crossplay
+                    </span>
+                )}
+            </h3>
             {canCommand && <div className="quick-actions-row">
                 <button type="button" className="btn btn-outline compact" disabled={!running || busy} onClick={() => { if (confirm(t(`op für ${selected} ausführen?`))) void perform("player_action", { name: selected, action: "op", command: "" }); }}><Shield size={14}/>OP</button>
                 <button type="button" className="btn btn-outline compact" disabled={!running || busy} onClick={() => { if (confirm(t(`deop für ${selected} ausführen?`))) void perform("player_action", { name: selected, action: "deop", command: "" }); }}>De-OP</button>
@@ -115,7 +132,16 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
                 </div>
                 <Inventory items={detail.inventory || []} equipment={detail.equipment || {}}/>
                 <Inventory ender items={detail.enderChest || []}/>
-            </> : <p>{message || t("Spielerdaten werden geladen …")}</p>}
+            </> : (selected.startsWith(".") || selected.startsWith("*")) ? (
+                <div style={{ background: "rgba(16, 185, 129, 0.08)", border: "1px solid rgba(16, 185, 129, 0.25)", borderRadius: 6, padding: "12px 14px", margin: "10px 0" }}>
+                    <p style={{ margin: 0, color: "#6ee7b7", fontWeight: 600 }}>
+                        🎮 {selected} ist über Minecraft Bedrock online
+                    </p>
+                    <p style={{ margin: "4px 0 0", fontSize: "0.85rem", color: "#94a3b8" }}>
+                        Bedrock-Spieler sind live auf dem Server. Alle Spieler-Befehle (OP, Heilen, Spielmodus, Kicken, Bannen) funktionieren direkt über die Buttons oben und das Formular unten!
+                    </p>
+                </div>
+            ) : <p>{message || t("Spielerdaten werden geladen …")}</p>}
             {canCommand && <form className="inline-form" onSubmit={e => { e.preventDefault(); if (["ban", "op", "deop"].includes(action) && !confirm(t(`${action} für ${selected} ausführen?`))) return; void perform("player_action", { name: selected, action, command }); }}>
                 <select value={action} onChange={e => setAction(e.target.value)}>
                     {Object.entries({ kick: t("Kicken"), ban: t("Bannen"), op: t("Operator geben"), deop: t("Operator entziehen"), heal: t("Heilen"), survival: t("Survival"), creative: t("Kreativ"), adventure: t("Abenteuer"), spectator: t("Zuschauer"), custom: t("Eigener Befehl") }).map(([key, title]) => <option value={key} key={key}>{t(title)}</option>)}
@@ -128,7 +154,7 @@ export default function PlayersPanel({ online, running, canCommand, bedrock, run
         <details><summary>{t("Whitelist verwalten")} ({players.whitelist?.length || 0})</summary>
             <p>{t("Wenn die Whitelist in den Einstellungen eingeschaltet ist, k\u00F6nnen nur die hier eingetragenen Spieler beitreten.")}</p>
             <form className="inline-form" onSubmit={e => { e.preventDefault(); void perform("whitelist_add", { name }); setName(""); }}>
-                <input value={name} onChange={e => setName(e.target.value)} placeholder={t("Minecraft-Spielername")} pattern={bedrock ? "[A-Za-z0-9_]{1,16}|[.][A-Za-z0-9_]{1,32}" : "[A-Za-z0-9_]{1,16}"} required/>
+                <input value={name} onChange={e => setName(e.target.value)} placeholder={t("Minecraft-Spielername (z. B. .BedrockName)")} pattern={bedrock ? "[A-Za-z0-9_]{1,16}|[.*][A-Za-z0-9_ ]{1,32}" : "[A-Za-z0-9_]{1,16}"} required/>
                 <button className="btn btn-blue" disabled={!running || busy}>{t("Hinzuf\u00FCgen")}</button>
             </form>
             {players.whitelist.map((player: string) => <div className="player-row" key={player}>

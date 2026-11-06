@@ -13,6 +13,12 @@ export async function GET(request: Request) {
   const list = (rows.results || []).map(r => {
     let snap: any = {};
     try { snap = JSON.parse(r.snapshot); } catch {}
+    const addr = snap.publicAccess?.address || snap.publicAccess?.candidate || snap.lan || "";
+    const bPort = snap.bedrock?.activePort || snap.bedrock?.port || 19132;
+    const bEnabled = snap.bedrock?.enabled || !!snap.bedrock?.activePort;
+    const baseHost = addr ? addr.replace(/:\d+$/, "") : "";
+    const bAddr = bEnabled && baseHost ? `${baseHost}:${bPort}` : "";
+
     return {
       id: r.id,
       online: Date.now() - r.updated < 30000,
@@ -24,7 +30,8 @@ export async function GET(request: Request) {
       rssMb: snap.rssMb,
       ram: snap.ram,
       onlinePlayers: snap.onlinePlayers || 0,
-      address: snap.publicAccess?.address || snap.publicAccess?.candidate || snap.lan || "",
+      address: addr,
+      bedrockAddress: bAddr,
     };
   });
 

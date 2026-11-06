@@ -393,6 +393,10 @@ export default function Dashboard({ account, signOut, serverId, servers, initial
     }
     const selected = tabs.find(item => item.id === tab)!;
     const publicAddress = phone?.publicAccess?.address || phone?.publicAccess?.candidate;
+    const bPort = phone?.bedrock?.activePort || phone?.bedrock?.port || 19132;
+    const bEnabled = phone?.bedrock?.enabled || !!phone?.bedrock?.activePort;
+    const baseHost = (publicAddress || phone?.lan || "").replace(/:\d+$/, "");
+    const bedrockAddress = bEnabled && baseHost ? `${baseHost}:${bPort}` : "";
     const playersPresent = running && (phone?.onlinePlayers || 0) > 0;
     const devicePicker = <label className="host-picker">{t("Host-Gerät")}<select aria-label={t("Host-Gerät")} value={serverId} onChange={event => { window.location.href = "/?server=" + encodeURIComponent(event.target.value); }}>{servers.map(server => <option key={server.id} value={server.id}>{server.model || server.name}{(server.id === serverId ? online : server.online) ? "" : " (" + t("Offline") + ")"}</option>)}</select></label>;
     return <div className="app-shell">
@@ -440,7 +444,17 @@ const current = servers.find(server => server.id === serverId);
       <section className="metrics" aria-label={t("Serverstatus")}>
         <div className="metric"><span>{t("Server")}</span><strong>{phone?.profileName || t("Mein Minecraft-Server")}</strong></div>
         <div className="metric"><span>{t("Status")}</span><strong className={online && running ? "green" : ""}><i className={`status-dot ${online && running ? "live" : ""}`}/>{online ? t(phases[phone?.phase ?? "stopped"]) : t("Offline")}{online && running && <em>{t("(")}{duration(phone?.uptime || 0)}{t(")")}</em>}</strong></div>
-        <div className="metric address-metric"><span>{t("Spieladresse")}</span><strong>{publicAddress || t("Netzwerk noch nicht eingerichtet")}</strong>{publicAddress && <button className="tiny" aria-label={t("Spieladresse kopieren")} onClick={() => { navigator.clipboard.writeText(publicAddress); notice(t("Spieladresse kopiert.")); }}><Copy size={14}/></button>}</div>
+        <div className="metric address-metric"><span>{t("Java-Spieladresse")}</span><strong>{publicAddress || t("Netzwerk noch nicht eingerichtet")}</strong>{publicAddress && <button className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => { navigator.clipboard.writeText(publicAddress); notice(t("Spieladresse kopiert.")); }}><Copy size={14}/></button>}</div>
+        {bedrockAddress && (
+          <div className="metric address-metric" style={{ borderLeft: "2px solid #10b981", background: "rgba(16, 185, 129, 0.05)" }}>
+            <span style={{ color: "#34d399", display: "flex", alignItems: "center", gap: 5 }}>
+              🎮 {t("Bedrock-Adresse")}
+            </span>
+            <strong>{bedrockAddress}</strong>
+            <button className="tiny" aria-label={t("Bedrock-Adresse kopieren")} title={t("Bedrock-Adresse kopieren")} onClick={() => { navigator.clipboard.writeText(bedrockAddress); notice(t("Bedrock-Adresse kopiert: ") + bedrockAddress); }}><Copy size={14}/></button>
+          </div>
+        )}
+        <div className="metric"><span>{t("Spieler")}</span><strong className={playersPresent ? "green" : ""}>{phone?.onlinePlayers || 0}</strong><small>{playersPresent ? t("Spieler online") : t("Niemand online")}</small></div>
         <div className="metric"><span>{t("CPU")}</span><strong>{online && phone?.cpu != null ? `${phone.cpu.toFixed(1)} %` : "?"}</strong><small>{t("Serverprozess")}</small>{online && phone?.cpu != null && <div className="metric-bar"><i style={{ width: `${Math.min(100, Math.max(4, phone.cpu))}%` }}/></div>}</div>
         <div className="metric"><span>{t("RAM")}</span><strong>{online && phone?.rssMb != null ? `${(phone.rssMb / 1024).toFixed(2)} GiB` : "?"}<em>{t(" / ")}{phone?.ram ? `${(phone.ram / 1024).toFixed(1)} GiB Heap-Limit` : "?"}</em></strong>{online && phone?.rssMb != null && phone?.ram ? <div className="metric-bar"><i style={{ width: `${Math.min(100, Math.max(4, (phone.rssMb / phone.ram) * 100))}%` }}/></div> : null}</div>
         <div className="metric"><span>{t("Speicher")}</span><strong>{phone ? `${(phone.diskUsedMb / 1024).toFixed(2)} GiB` : "?"}<em>{t(" / ")}{phone ? `${(phone.diskFreeMb / 1024).toFixed(1)} GiB frei` : "?"}</em></strong>{phone && (phone.diskUsedMb + phone.diskFreeMb) > 0 ? <div className="metric-bar"><i style={{ width: `${Math.min(100, Math.max(4, (phone.diskUsedMb / (phone.diskUsedMb + phone.diskFreeMb)) * 100))}%` }}/></div> : null}</div>
@@ -528,15 +542,26 @@ const current = servers.find(server => server.id === serverId);
                 </div>
               </div>
 
-              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 8 }}>
-                <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                  Spieladresse: <code style={{ color: "#ecfdf5" }}>{publicAddress || phone?.lan || "127.0.0.1:25565"}</code>
-                  <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
-                    const addr = publicAddress || phone?.lan || "127.0.0.1:25565";
-                    navigator.clipboard.writeText(addr);
-                    notice(t("Spieladresse kopiert: ") + addr);
-                  }}><Copy size={13}/></button>
-                </span>
+              <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 10 }}>
+                <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14 }}>
+                  <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                    Java: <code style={{ color: "#ecfdf5" }}>{publicAddress || phone?.lan || "127.0.0.1:25565"}</code>
+                    <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
+                      const addr = publicAddress || phone?.lan || "127.0.0.1:25565";
+                      navigator.clipboard.writeText(addr);
+                      notice(t("Spieladresse kopiert: ") + addr);
+                    }}><Copy size={13}/></button>
+                  </span>
+                  {bedrockAddress && (
+                    <span style={{ color: "#34d399", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                      🎮 Bedrock: <code style={{ color: "#a7f3d0" }}>{bedrockAddress}</code>
+                      <button type="button" className="tiny" aria-label={t("Bedrock-Adresse kopieren")} title={t("Bedrock-Adresse kopieren")} onClick={() => {
+                        navigator.clipboard.writeText(bedrockAddress);
+                        notice(t("Bedrock-Adresse kopiert: ") + bedrockAddress);
+                      }}><Copy size={13}/></button>
+                    </span>
+                  )}
+                </div>
                 <span style={{ color: "#34d399" }}>{phone?.onlinePlayers || 0} Spieler online</span>
               </div>
             </div>
@@ -629,14 +654,25 @@ const current = servers.find(server => server.id === serverId);
                     </div>
                   </div>
 
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 8 }}>
-                    <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
-                      Spieladresse: <code style={{ color: "#ecfdf5" }}>{sAddr || "Nicht aktiv"}</code>
-                      {sAddr && <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
-                        navigator.clipboard.writeText(sAddr);
-                        notice(t("Spieladresse kopiert: ") + sAddr);
-                      }}><Copy size={13}/></button>}
-                    </span>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.06)", fontSize: 12, flexWrap: "wrap", gap: 10 }}>
+                    <div style={{ display: "flex", flexWrap: "wrap", alignItems: "center", gap: 14 }}>
+                      <span style={{ color: "#8fa89b", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                        Java: <code style={{ color: "#ecfdf5" }}>{sAddr || "Nicht aktiv"}</code>
+                        {sAddr && <button type="button" className="tiny" aria-label={t("Spieladresse kopieren")} title={t("Spieladresse kopieren")} onClick={() => {
+                          navigator.clipboard.writeText(sAddr);
+                          notice(t("Spieladresse kopiert: ") + sAddr);
+                        }}><Copy size={13}/></button>}
+                      </span>
+                      {info?.bedrockAddress && (
+                        <span style={{ color: "#34d399", display: "inline-flex", alignItems: "center", gap: 6 }}>
+                          🎮 Bedrock: <code style={{ color: "#a7f3d0" }}>{info.bedrockAddress}</code>
+                          <button type="button" className="tiny" aria-label={t("Bedrock-Adresse kopieren")} title={t("Bedrock-Adresse kopieren")} onClick={() => {
+                            navigator.clipboard.writeText(info.bedrockAddress);
+                            notice(t("Bedrock-Adresse kopiert: ") + info.bedrockAddress);
+                          }}><Copy size={13}/></button>
+                        </span>
+                      )}
+                    </div>
                     <a href={`/?server=${encodeURIComponent(s.id)}`} className="btn btn-outline compact" style={{ textDecoration: "none" }}>
                       Öffnen & Verwalten →
                     </a>

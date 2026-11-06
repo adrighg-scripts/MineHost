@@ -94,6 +94,10 @@ export function BedrockConnection({ state, lan, publicAddress, outside = false, 
             )}
         </div>
 
+        {outside && state.enabled && <p style={{ marginTop: 10, fontSize: "0.88rem" }}>{l(
+            `Lege zwei Freigaben auf ${localIp || "die IP deines Host-Geräts"} an: TCP ${state.port} und UDP ${state.port}. Verwende innen und außen dieselbe Nummer. Teste danach von einem anderen Netzwerk.`,
+            `Forward TCP ${state.port} and UDP ${state.port} to ${localIp || "your phone's IP"}. Use the same port inside and outside. Then test from another network.`)}</p>}
+
         <div style={{ marginTop: 12, fontSize: "0.85rem", color: "var(--text-muted, #94a3b8)", lineHeight: 1.5 }}>
             💡 <strong>{l("Warum geht UPnP auf dem Handy nicht automatisch?", "Why doesn't UPnP work automatically on the phone?")}</strong><br />
             {l(
